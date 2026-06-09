@@ -1,0 +1,79 @@
+================================================================================
+PANDUAN MENJALANKAN BACKEND (BE) & FRONTEND (FE)
+APLIKASI LAUNDRY SAAS MULTI-TENANT
+================================================================================
+
+Aplikasi ini telah dipecah menjadi dua layanan terpisah yang independen:
+1. Backend (BE)  : Menangani API database, autentikasi JWT, dan logika bisnis (Port 3001).
+2. Frontend (FE) : Menangani UI POS Kasir dan Dashboard Owner (Port 3000).
+
+Berikut adalah langkah-langkah untuk menjalankan kedua layanan tersebut secara lokal.
+
+--------------------------------------------------------------------------------
+1. CARA MENJALANKAN BACKEND (BE) - PORT 3001
+--------------------------------------------------------------------------------
+Masuk ke terminal baru, arahkan ke direktori `backend/`, lalu jalankan:
+
+# A. Instalasi Dependensi (Jika belum)
+npm install
+
+# B. Jalankan Migrasi Database SQLite (Jika database belum terbentuk)
+npx prisma migrate dev --name init
+
+# C. Lakukan Seeding Data Awal (Tenant, User, Layanan, Pelanggan)
+npx prisma db seed
+
+# D. Jalankan Server API Backend
+npm run dev
+
+* Server backend akan aktif di http://localhost:3001
+* Endpoint kesehatan API dapat diuji di http://localhost:3001/health
+
+--------------------------------------------------------------------------------
+2. CARA MENJALANKAN FRONTEND WEB OWNER (FE) - PORT 3000
+--------------------------------------------------------------------------------
+Buka jendela terminal baru lagi (pastikan berada di direktori UTAMA / root proyek), lalu jalankan:
+
+# A. Instalasi Dependensi (Jika belum)
+npm install
+
+# B. Jalankan Aplikasi Web Next.js Owner
+npm run dev
+
+* Dashboard Web Owner akan aktif di http://localhost:3000
+* Buka browser dan arahkan ke alamat tersebut untuk menggunakannya.
+
+--------------------------------------------------------------------------------
+3. CARA MENJALANKAN KASIR MOBILE APP (REACT NATIVE / EXPO)
+--------------------------------------------------------------------------------
+Buka jendela terminal baru lagi, arahkan ke direktori `mobile/`, lalu jalankan:
+
+# A. Instalasi Dependensi (Jika belum)
+npm install
+
+# B. Jalankan Server Bundler Expo
+npm start
+
+* Setelah QR Code muncul di terminal:
+  - Pasang aplikasi "Expo Go" dari Google Play Store di HP Android Anda.
+  - Hubungkan HP Android & Laptop Anda ke jaringan Wi-Fi yang sama.
+  - Buka Expo Go, scan QR Code tersebut untuk menjalankan aplikasi kasir secara native di handphone Anda!
+
+--------------------------------------------------------------------------------
+4. INFORMASI AKUN DEMO PENGUJIAN
+--------------------------------------------------------------------------------
+Anda dapat masuk ke aplikasi dengan akun demo berikut untuk menguji isolasi data:
+
+TENANT A: Laundrease Pusat
+- Role Owner : owner@laundrease.com (Password: owner123)
+- Role Kasir : kasir@laundrease.com (Password: kasir123)
+
+TENANT B: Clean & Fresh Laundry
+- Role Owner : owner@cleanfresh.com (Password: owner456)
+- Role Kasir : kasir@cleanfresh.com (Password: kasir456)
+
+Catatan:
+* Mocking notifikasi WhatsApp akan tercetak langsung di terminal/konsol backend
+  (terminal BE) setiap kali kasir membuat transaksi atau owner menekan tombol
+  "Ingatkan via WA".
+================================================================================

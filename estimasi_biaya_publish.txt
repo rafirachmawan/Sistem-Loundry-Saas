@@ -1,0 +1,127 @@
+================================================================================
+ESTIMASI AKUMULASI BIAYA PUBLISH (PRODUKSI)
+APLIKASI LAUNDRY SAAS MULTI-TENANT
+================================================================================
+
+Dokumen ini menjabarkan rincian estimasi biaya bulanan dan tahunan untuk merilis
+(publish) aplikasi dari lingkungan lokal (localhost) ke server cloud publik agar 
+dapat diakses oleh Owner dan Kasir di mana saja secara online.
+
+Kami membagi estimasi ini menjadi 2 skenario utama:
+1. Skenario Hemat & Starter (Uji Coba / Tenant Awal < 10)
+2. Skenario Profesional & Skala Bisnis (Siap Komersial / Banyak Tenant)
+
+--------------------------------------------------------------------------------
+SKENARIO 1: HEMAT & STARTER (Sangat Cocok untuk Tahap Launching / Beta Test)
+--------------------------------------------------------------------------------
+Skenario ini memanfaatkan tier gratis (Free Tier) dari beberapa layanan cloud 
+serta VPS berspesifikasi rendah untuk menekan biaya seminimal mungkin.
+
+1. Domain Web (.com atau .id)
+   - Pembayaran per tahun.
+   - Estimasi: Rp 120.000 - Rp 200.000 / tahun (Sekitar Rp 15.000 / bulan).
+
+2. App Hosting (Next.js Frontend & API)
+   - Provider: Vercel (Hobby Plan) atau Render / Railway (Free/Developer Plan).
+   - Biaya: Rp 0 (Gratis untuk traffic rendah/menengah).
+
+3. Database Server (PostgreSQL)
+   - Provider: Supabase (Free Tier - kapasitas DB up to 500MB, cukup untuk ribuan order).
+   - Biaya: Rp 0.
+
+4. WhatsApp API Gateway (Notifikasi Nota)
+   - Provider: Fonnte (Plan Regular - kuota terbatas tapi cukup untuk awal).
+   - Biaya: Rp 50.000 - Rp 85.000 / bulan.
+
+================================================================================
+TOTAL ESTIMASI SKENARIO 1:
+- Biaya Awal/Tahunan : Rp 150.000 (Domain)
+- Biaya Bulanan      : Rp 50.000 - Rp 85.000 (WhatsApp Gateway)
+- Rata-rata/Bulan    : ~Rp 65.000 - Rp 100.000 saja.
+================================================================================
+
+--------------------------------------------------------------------------------
+SKENARIO 2: PROFESIONAL & SKALA BISNIS (Direkomendasikan untuk Komersial SaaS)
+--------------------------------------------------------------------------------
+Skenario ini menggunakan infrastruktur berbayar dengan jaminan performa (Uptime 99.9%),
+backup data otomatis, dan kapasitas penyimpanan yang jauh lebih besar.
+
+1. Domain Web (.com / .id / .co.id)
+   - Estimasi: Rp 150.000 - Rp 250.000 / tahun (Sekitar Rp 20.000 / bulan).
+
+2. App Hosting & Database (VPS Indonesia / Singapura)
+   - Next.js & PostgreSQL di-hosting dalam satu Virtual Private Server (VPS) menggunakan
+     Docker/PM2 untuk menghemat biaya sewa terpisah.
+   - Provider VPS: Biznet Gio / IDCloudHost / Niagahoster / DigitalOcean (Droplet 2GB RAM / 1-2 vCPU).
+   - Biaya VPS: Rp 100.000 - Rp 200.000 / bulan.
+   - Database Cloud Alternatif (Opsional): Supabase Pro Tier ($25/bulan atau ~Rp 400.000/bulan) 
+     jika ingin database terpisah dan terkelola otomatis (Auto-backup & Restore).
+
+3. WhatsApp API Gateway (Notifikasi Nota & Alert Piutang)
+   - Menggunakan paket Unlimited send agar tidak khawatir kuota habis saat tenant bertambah banyak.
+   - Provider: Fonnte (Plan Unlimited) atau Wablas.
+   - Biaya: Rp 100.000 - Rp 150.000 / bulan.
+
+4. Email Gateway (Registrasi & Reset Password)
+   - Provider: Resend / Mailgun / SendGrid (Free tier cukup untuk 3.000 email/bulan).
+   - Biaya: Rp 0 - Rp 150.000 / bulan (tergantung volume email).
+
+================================================================================
+TOTAL ESTIMASI SKENARIO 2 (Menggunakan VPS Mandiri):
+- Biaya Awal/Tahunan : Rp 200.000 (Domain)
+- Biaya Bulanan      : Rp 200.000 (VPS) + Rp 120.000 (WA Gateway) = Rp 320.000 / bulan.
+- Rata-rata/Bulan    : ~Rp 335.000 / bulan.
+================================================================================
+
+--------------------------------------------------------------------------------
+ALTERNATIF DATABASE CLOUD (SELAIN SUPABASE)
+--------------------------------------------------------------------------------
+Jika tidak ingin menggunakan Supabase, berikut adalah beberapa alternatif database 
+PostgreSQL/MySQL lainnya yang layak dipertimbangkan:
+
+1. Neon (neon.tech) - (Serverless PostgreSQL)
+   - Kelebihan: Dirancang khusus untuk Next.js/Vercel (koneksi serverless sangat optimal). 
+     Mendukung database branching (seperti Git branch) untuk mempermudah development.
+   - Free Tier: Gratis kapasitas penyimpanan hingga 0.5 GiB (500MB).
+   - Pro Tier: Mulai dari $19 / bulan (Sekitar Rp 300.000).
+
+2. Aiven (aiven.io) - (Managed Database Cloud)
+   - Kelebihan: Menyediakan database PostgreSQL, MySQL, dan Redis siap pakai yang dikelola penuh.
+   - Free Tier: Menyediakan plan gratis (cukup untuk testing & deployment skala kecil).
+   - Paid Tier: Mulai dari ~$15 / bulan (Sekitar Rp 240.000).
+
+3. Railway / Render Database - (Integrated Database)
+   - Kelebihan: Database dibuat langsung dalam satu platform yang sama dengan hosting aplikasi,
+     memudahkan setup dan meminimalisir delay koneksi.
+   - Biaya: Railway berbasis pemakaian (pay-as-you-go, biasanya ~$3 - $7 / bulan). Render
+     menyediakan database gratis selama 90 hari pertama, setelah itu $7 / bulan.
+
+4. Self-Hosted di VPS Sendiri (Docker / Instalasi Manual PostgreSQL)
+   - Kelebihan: 100% Gratis karena memanfaatkan resource VPS yang sudah disewa. Tidak ada 
+     batasan ukuran database (selama penyimpanan SSD VPS masih mencukupi).
+   - Biaya: Rp 0 (Sudah termasuk dalam biaya sewa VPS bulanan di Skenario 2).
+   - Kekurangan: Developer wajib mengonfigurasi keamanan, pembaruan, dan skrip auto-backup data
+     secara manual.
+
+--------------------------------------------------------------------------------
+REKOMENDASI ALUR DEPLOYMENT UNTUK DEVELOPER & OWNER:
+--------------------------------------------------------------------------------
+Langkah 1 (Development - Saat ini):
+- Database lokal menggunakan SQLite. Aplikasi dijalankan secara lokal di localhost.
+- WhatsApp menggunakan Mocking (hanya tertulis di log terminal).
+- Biaya: Rp 0.
+
+Langkah 2 (Staging / Demo):
+- Publish Next.js ke Vercel (Free).
+- Gunakan Supabase PostgreSQL (Free).
+- Gunakan WhatsApp Gateway berbayar paket paling murah (Rp 50.000/bulan) untuk testing di HP asli.
+- Hubungkan dengan domain murah/subdomain gratis.
+- Biaya: ~Rp 50.000/bulan.
+
+Langkah 3 (Production - Siap Dijual):
+- Migrasi ke VPS Cloud Indonesia (untuk latensi tercepat bagi kasir di Indonesia) 
+  atau kombinasi Vercel Pro + Supabase Pro.
+- Gunakan WhatsApp Gateway Unlimited.
+- Set up domain utama (misal: laundrysaas.com).
+- Biaya: ~Rp 335.000/bulan.
+================================================================================

@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Tenant {
+  id        String     @id @default(uuid())
+  name      String
+  users     User[]
+  customers Customer[]
+  services  Service[]
+  orders    Order[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hashed with bcrypt
+  name      String
+  role      String   // "OWNER" or "KASIR"
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String   // Nomor WhatsApp
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id        String      @id @default(uuid())
+  name      String      // e.g., "Cuci Setrika Kiloan"
+  price     Float       // Harga master yang berlaku saat ini
+  unit      String      // "KG" atau "PCS"
+  tenantId  String
+  tenant    Tenant      @relation(fields: [tenantId], references: [id])
+  orderItems OrderItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  invoiceNumber String      @unique // Format: INV-YYYYMMDD-XXXX
+  status        String      // QUEUED, IN_PROGRESS, READY, COMPLETED
+  paymentTerm   String      // PREPAID, POSTPAID
+  paymentStatus String      // PAID, UNPAID
+  totalPrice    Float
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  customerId    String
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  userId        String      // Kasir yang menginput
+  user          User        @relation(fields: [userId], references: [id])
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id])
+  quantity  Float
+  priceSnap Float    // Snapshot harga saat transaksi (Anti-Fraud & History-Proof)
+}
