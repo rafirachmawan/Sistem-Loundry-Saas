@@ -23,6 +23,27 @@ async function main() {
   const hashedKasirA = await bcrypt.hash("kasir123", 10);
   const hashedOwnerB = await bcrypt.hash("owner456", 10);
   const hashedKasirB = await bcrypt.hash("kasir456", 10);
+  const hashedDev = await bcrypt.hash("dev123", 10);
+
+  // -------------------------------------------------------------
+  // SYSTEM DEVELOPER
+  // -------------------------------------------------------------
+  const tenantDev = await prisma.tenant.create({
+    data: {
+      name: "System Developer Tenant",
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      email: "dev@laundry.com",
+      password: hashedDev,
+      plainPassword: "dev123",
+      name: "Rafi (Developer)",
+      role: "DEVELOPER",
+      tenantId: tenantDev.id,
+    },
+  });
 
   // -------------------------------------------------------------
   // TENANT A: Laundrease Pusat
@@ -33,12 +54,12 @@ async function main() {
     },
   });
 
-  // Users Tenant A
   await prisma.user.createMany({
     data: [
       {
         email: "owner@laundrease.com",
         password: hashedOwnerA,
+        plainPassword: "owner123",
         name: "Bambang (Owner A)",
         role: "OWNER",
         tenantId: tenantA.id,
@@ -46,6 +67,7 @@ async function main() {
       {
         email: "kasir@laundrease.com",
         password: hashedKasirA,
+        plainPassword: "kasir123",
         name: "Ani (Kasir A)",
         role: "KASIR",
         tenantId: tenantA.id,
@@ -108,6 +130,7 @@ async function main() {
       {
         email: "owner@cleanfresh.com",
         password: hashedOwnerB,
+        plainPassword: "owner456",
         name: "Joni (Owner B)",
         role: "OWNER",
         tenantId: tenantB.id,
@@ -115,6 +138,7 @@ async function main() {
       {
         email: "kasir@cleanfresh.com",
         password: hashedKasirB,
+        plainPassword: "kasir456",
         name: "Dedi (Kasir B)",
         role: "KASIR",
         tenantId: tenantB.id,

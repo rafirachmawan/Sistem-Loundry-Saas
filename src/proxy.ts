@@ -9,7 +9,7 @@ export async function proxy(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
-    pathname === "/api/auth" ||
+    pathname.startsWith("/api/auth") ||
     pathname === "/register"
   ) {
     return NextResponse.next();
@@ -23,7 +23,9 @@ export async function proxy(request: NextRequest) {
     if (token) {
       const payload = await verifyJWT(token);
       if (payload) {
-        if (payload.role === "OWNER") {
+        if (payload.role === "DEVELOPER") {
+          return NextResponse.redirect(new URL("/developer/dashboard", request.url));
+        } else if (payload.role === "OWNER") {
           return NextResponse.redirect(new URL("/owner/dashboard", request.url));
         } else if (payload.role === "KASIR") {
           return NextResponse.redirect(new URL("/kasir", request.url));
@@ -34,11 +36,12 @@ export async function proxy(request: NextRequest) {
   }
 
   // Rute terproteksi
+  const isDeveloperRoute = pathname.startsWith("/developer");
   const isOwnerRoute = pathname.startsWith("/owner");
   const isKasirRoute = pathname.startsWith("/kasir");
   const isApiRoute = pathname.startsWith("/api");
 
-  if (isOwnerRoute || isKasirRoute || isApiRoute) {
+  if (isDeveloperRoute || isOwnerRoute || isKasirRoute || isApiRoute) {
     if (!token) {
       if (isApiRoute) {
         return NextResponse.json(
@@ -63,12 +66,17 @@ export async function proxy(request: NextRequest) {
     }
 
     // Validasi Peran (Role Authorization)
-    if (isOwnerRoute && payload.role !== "OWNER") {
-      // Kasir tidak boleh masuk halaman Owner, lempar ke halaman Kasir
-      return NextResponse.redirect(new URL("/kasir", request.url));
+    if (isDeveloperRoute && payload.role !== "DEVELOPER") {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    // Owner diperbolehkan masuk ke halaman Kasir (sesuai PRD: Seluruh hak akses Kasir dimiliki Owner)
+    if (isOwnerRoute && payload.role !== "OWNER") {
+      // Kasir/Developer tidak boleh masuk halaman Owner (kecuali jika role-nya disesuaikan)
+      if (payload.role === "DEVELOPER") {
+        return NextResponse.redirect(new URL("/developer/dashboard", request.url));
+      }
+      return NextResponse.redirect(new URL("/kasir", request.url));
+    }
 
     // Inject data user terotentikasi ke request headers agar API Route bisa langsung membacanya
     const requestHeaders = new Headers(request.headers);
@@ -88,5 +96,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/owner/:path*", "/kasir/:path*", "/api/:path*", "/login"],
+  matcher: ["/developer/:path*", "/owner/:path*", "/kasir/:path*", "/api/:path*", "/login"],
 };

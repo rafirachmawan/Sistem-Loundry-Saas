@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -35,7 +36,9 @@ export default function LoginPage() {
       localStorage.setItem("user", JSON.stringify(user));
 
       // Arahkan berdasarkan role
-      if (user.role === "OWNER") {
+      if (user.role === "DEVELOPER") {
+        router.push("/developer/dashboard");
+      } else if (user.role === "OWNER") {
         router.push("/owner/dashboard");
       } else {
         router.push("/kasir");
@@ -177,21 +180,33 @@ export default function LoginPage() {
               </button>
             </form>
 
+            <p className="text-center text-xs text-slate-500 font-semibold pt-1">
+              Belum memiliki akun?{" "}
+              <Link href="/register" className="text-brand-650 hover:text-brand-555 font-bold transition duration-150">
+                Daftar Akun Baru
+              </Link>
+            </p>
+
             {/* Demo Accounts List */}
             <div className="pt-6 border-t border-slate-100 space-y-3">
               <span className="text-[10px] uppercase tracking-widest font-extrabold text-slate-400 block text-center">
                 Akun Demo Pengujian:
               </span>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-150 text-[10px] text-slate-600 space-y-1 shadow-sm">
-                  <span className="font-extrabold text-brand-600 block">Owner Tenant A</span>
-                  <span className="block truncate font-medium">owner@laundrease.com</span>
-                  <span className="text-slate-400 block font-medium">Pass: owner123</span>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="p-2 rounded-xl bg-slate-50 border border-slate-150 text-[9px] text-slate-600 space-y-0.5 shadow-sm">
+                  <span className="font-extrabold text-purple-650 block">Developer</span>
+                  <span className="block truncate font-semibold">dev@laundry.com</span>
+                  <span className="text-slate-450 block font-medium">Pass: dev123</span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-150 text-[10px] text-slate-600 space-y-1 shadow-sm">
-                  <span className="font-extrabold text-emerald-600 block">Kasir Tenant A</span>
-                  <span className="block truncate font-medium">kasir@laundrease.com</span>
-                  <span className="text-slate-400 block font-medium">Pass: kasir123</span>
+                <div className="p-2 rounded-xl bg-slate-50 border border-slate-150 text-[9px] text-slate-600 space-y-0.5 shadow-sm">
+                  <span className="font-extrabold text-brand-600 block">Owner A</span>
+                  <span className="block truncate font-semibold">owner@laundrease.com</span>
+                  <span className="text-slate-450 block font-medium">Pass: owner123</span>
+                </div>
+                <div className="p-2 rounded-xl bg-slate-50 border border-slate-150 text-[9px] text-slate-600 space-y-0.5 shadow-sm">
+                  <span className="font-extrabold text-emerald-600 block">Kasir A</span>
+                  <span className="block truncate font-semibold">kasir@laundrease.com</span>
+                  <span className="text-slate-450 block font-medium">Pass: kasir123</span>
                 </div>
               </div>
             </div>

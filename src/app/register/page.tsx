@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [ownerName, setOwnerName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [tier, setTier] = useState("STARTER");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function RegisterPage() {
           ownerName,
           email,
           password,
+          tier,
         }),
       });
 
@@ -57,7 +59,7 @@ export default function RegisterPage() {
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 min-h-screen z-10">
         
         {/* 🖥️ LEFT COLUMN: BRANDING SHOWCASE (VISIBLE ON DESKTOP) */}
-        <div className="hidden lg:flex lg:col-span-7 flex-col justify-between p-16 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-950 relative overflow-hidden">
+        <div className="hidden lg:flex lg:col-span-6 flex-col justify-between p-16 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-950 relative overflow-hidden">
           {/* Animated decorations */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-brand-500 rounded-full filter blur-[120px] opacity-15 animate-pulse-glow"></div>
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-500 rounded-full filter blur-[120px] opacity-15 animate-pulse-glow"></div>
@@ -111,8 +113,8 @@ export default function RegisterPage() {
         </div>
 
         {/* 📝 RIGHT COLUMN: REGISTRATION FORM (Terang) */}
-        <div className="flex lg:col-span-5 items-center justify-center p-8 bg-white relative border-l border-slate-100 shadow-2xl overflow-y-auto">
-          <div className="w-full max-w-md space-y-6 py-6 animate-fade-in-up">
+        <div className="flex lg:col-span-6 items-center justify-center p-8 bg-white relative border-l border-slate-100 shadow-2xl overflow-y-auto">
+          <div className="w-full max-w-2xl space-y-6 py-6 animate-fade-in-up">
             
             <div>
               <h2 className="text-2xl font-display font-black text-slate-800 tracking-tight">
@@ -131,6 +133,145 @@ export default function RegisterPage() {
 
             <form onSubmit={handleRegister} className="space-y-4">
               
+              {/* Pricing Cards Selector */}
+              <div className="space-y-2">
+                <label className="block text-[10px] uppercase tracking-wider font-extrabold text-slate-500">
+                  Pilih Paket Layanan
+                </label>
+                <div className="space-y-2.5">
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Starter Tier Card */}
+                  <div
+                    onClick={() => setTier("STARTER")}
+                    className={`p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 relative overflow-hidden flex flex-col justify-between ${
+                      tier === "STARTER"
+                        ? "border-brand-500 bg-brand-50/10 glow-emerald scale-[1.01]"
+                        : "border-slate-200 hover:border-slate-300 bg-slate-50/50"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-slate-200 text-slate-700 uppercase tracking-wider">
+                          Starter
+                        </span>
+                        {tier === "STARTER" && (
+                          <span className="w-3.5 h-3.5 rounded-full bg-brand-500 flex items-center justify-center text-white text-[8px] font-extrabold shadow-sm animate-fade-in-up">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-xs font-black text-slate-800 mt-1.5">Gratis</h4>
+                      <div className="mt-1">
+                        <span className="text-xs font-black text-slate-900">Rp 0</span>
+                        <span className="text-[9px] text-slate-400 block font-semibold">/ bulan</span>
+                      </div>
+                      <p className="text-[9px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                        Gratis selamanya, cocok untuk pemula.
+                      </p>
+                    </div>
+                    <div className="border-t border-slate-100 mt-2.5 pt-1.5 space-y-0.5 text-[9px] text-slate-500 font-bold">
+                      <div className="flex items-center gap-1">
+                        <span>✓ 1 Outlet</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>✓ Max 100 Trx</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>✓ POS Dasar</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pro Tier Card */}
+                  <div
+                    onClick={() => setTier("PRO")}
+                    className={`p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 relative overflow-hidden flex flex-col justify-between ${
+                      tier === "PRO"
+                        ? "border-brand-500 bg-brand-50/10 glow-emerald scale-[1.01]"
+                        : "border-slate-200 hover:border-slate-300 bg-slate-50/50"
+                    }`}
+                  >
+                    <div className="absolute top-0 right-3 bg-gradient-to-r from-brand-500 to-emerald-400 text-white text-[7px] font-extrabold px-1.5 py-0.5 rounded-b uppercase tracking-wider">
+                      Populer
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-brand-100 text-brand-700 uppercase tracking-wider">
+                          Pro
+                        </span>
+                        {tier === "PRO" && (
+                          <span className="w-3.5 h-3.5 rounded-full bg-brand-500 flex items-center justify-center text-white text-[8px] font-extrabold shadow-sm animate-fade-in-up">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-xs font-black text-slate-800 mt-1.5 text-brand-650">Trial 7 Hari</h4>
+                      <div className="mt-1">
+                        <span className="text-xs font-black text-slate-900">Rp 149K</span>
+                        <span className="text-[9px] text-slate-400 block font-semibold">/ bulan</span>
+                      </div>
+                      <p className="text-[9px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                        Coba 7 hari gratis, lalu Rp149rb/bulan.
+                      </p>
+                    </div>
+                    <div className="border-t border-slate-100 mt-2.5 pt-1.5 space-y-0.5 text-[9px] text-slate-500 font-bold">
+                      <div className="flex items-center gap-1">
+                        <span>✓ 5 Outlet</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>✓ Unlimited Trx</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>✓ WA Struk</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Enterprise Tier Card */}
+                  <div
+                    onClick={() => setTier("ENTERPRISE")}
+                    className={`p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 relative overflow-hidden flex flex-col justify-between ${
+                      tier === "ENTERPRISE"
+                        ? "border-brand-500 bg-brand-50/10 glow-emerald scale-[1.01]"
+                        : "border-slate-200 hover:border-slate-300 bg-slate-50/50"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-purple-100 text-purple-700 uppercase tracking-wider">
+                          Enterprise
+                        </span>
+                        {tier === "ENTERPRISE" && (
+                          <span className="w-3.5 h-3.5 rounded-full bg-brand-500 flex items-center justify-center text-white text-[8px] font-extrabold shadow-sm animate-fade-in-up">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-xs font-black text-slate-800 mt-1.5 text-purple-650">Trial 7 Hari</h4>
+                      <div className="mt-1">
+                        <span className="text-xs font-black text-slate-900">Rp 299K</span>
+                        <span className="text-[9px] text-slate-400 block font-semibold">/ bulan</span>
+                      </div>
+                      <p className="text-[9px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                        Coba 7 hari gratis, lalu Rp299rb/bulan.
+                      </p>
+                    </div>
+                    <div className="border-t border-slate-100 mt-2.5 pt-1.5 space-y-0.5 text-[9px] text-slate-500 font-bold">
+                      <div className="flex items-center gap-1">
+                        <span>✓ Outlet Bebas</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>✓ Backup Harian</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>✓ Support 24/7</span>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
               <div className="space-y-1.5">
                 <label className="block text-[10px] uppercase tracking-wider font-extrabold text-slate-500">
                   Nama Bisnis Laundry
@@ -195,8 +336,12 @@ export default function RegisterPage() {
               >
                 {loading ? (
                   <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                ) : tier === "STARTER" ? (
+                  "Daftar Paket Starter (Gratis)"
+                ) : tier === "PRO" ? (
+                  "Mulai Uji Coba 7 Hari (Paket Pro)"
                 ) : (
-                  "Mulai Uji Coba Gratis 7 Hari"
+                  "Mulai Uji Coba 7 Hari (Paket Enterprise)"
                 )}
               </button>
             </form>

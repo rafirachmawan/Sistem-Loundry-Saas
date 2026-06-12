@@ -7,7 +7,7 @@ import { signJWT } from "@/lib/jwt";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { laundryName, ownerName, email, password } = body;
+    const { laundryName, ownerName, email, password, tier } = body;
 
     if (!laundryName || !ownerName || !email || !password) {
       return NextResponse.json(
@@ -36,6 +36,7 @@ export async function POST(request: Request) {
       const tenant = await tx.tenant.create({
         data: {
           name: laundryName,
+          tier: tier || "STARTER",
         },
       });
 
