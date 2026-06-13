@@ -8,7 +8,7 @@ function verifyDeveloper(request: Request) {
   return userRole === "DEVELOPER";
 }
 
-// GET: Mengambil daftar semua user terdaftar di platform
+// GET: Mengambil daftar user terdaftar di platform (opsional filter tenantId)
 export async function GET(request: Request) {
   try {
     if (!verifyDeveloper(request)) {
@@ -18,7 +18,13 @@ export async function GET(request: Request) {
       );
     }
 
+    const { searchParams } = new URL(request.url);
+    const tenantId = searchParams.get("tenantId");
+
+    const whereClause = tenantId ? { tenantId } : {};
+
     const users = await prisma.user.findMany({
+      where: whereClause,
       orderBy: { createdAt: "desc" },
       include: {
         tenant: {
@@ -34,6 +40,7 @@ export async function GET(request: Request) {
       name: u.name,
       email: u.email,
       role: u.role,
+      phone: u.phone || "",
       createdAt: u.createdAt,
       tenantName: u.tenant.name,
       plainPassword: u.plainPassword,
@@ -44,6 +51,96 @@ export async function GET(request: Request) {
     console.error("Kesalahan API GET Developer Users:", error);
     return NextResponse.json(
       { success: false, message: "Terjadi kesalahan internal server" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST: Membuat user baru untuk tenant tertentu
+export async function POST(request: Request) {
+  try {
+    if (!verifyDeveloper(request)) {
+      return NextResponse.json(
+        { success: false, message: "Akses ditolak: Otorisasi diperlukan." },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { tenantId, name, email, password, role, phone } = body;
+
+    if (!tenantId || !name || !email || !password || !role) {
+      return NextResponse.json(
+        { success: false, message: "Semua field wajib diisi (tenantId, name, email, password, role)." },
+        { status: 400 }
+      );
+    }
+
+    if (!email.includes("@")) {
+      return NextResponse.json(
+        { success: false, message: "Format email tidak valid." },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, message: "Email sudah digunakan oleh user lain." },
+        { status: 400 }
+      );
+    }
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+    });
+
+    if (!tenant) {
+      return NextResponse.json(
+        { success: false, message: "Tenant tidak ditemukan." },
+        { status: 404 }
+      );
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json(
+        { success: false, message: "Kata sandi minimal harus 6 karakter." },
+        { status: 400 }
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        tenantId,
+        name,
+        email,
+        password: hashedPassword,
+        plainPassword: password,
+        role,
+        phone: phone || null,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "User baru berhasil dibuat.",
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        createdAt: newUser.createdAt,
+      },
+    });
+  } catch (error: any) {
+    console.error("Kesalahan API POST Developer Users:", error);
+    return NextResponse.json(
+      { success: false, message: "Terjadi kesalahan saat membuat user." },
       { status: 500 }
     );
   }
@@ -69,7 +166,6 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Hindari developer menghapus akunnya sendiri
     const currentUserId = request.headers.get("x-user-id");
     if (currentUserId === userId) {
       return NextResponse.json(
@@ -78,7 +174,6 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Cari user yang akan dihapus
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -90,19 +185,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Jalankan penghapusan user
-    // Jika user memiliki order (misalnya dia kasir yang mencatat order), 
-    // SQLite akan melempar foreign key constraint error karena model Order memiliki userId.
-    // Oleh karena itu, kita ubah userId di order tersebut menjadi null atau kita hapus ordernya.
-    // Pilihan paling aman adalah mengosongkan/nullify userId pada order yang dikaitkan,
-    // namun Prisma schema mendefinisikan userId sebagai String non-nullable (userId String).
-    // Jadi untuk menghapusnya, kita harus menghapus order-order milik kasir tersebut, 
-    // atau melarang penghapusan kasir yang memiliki transaksi aktif.
-    // Mari buat perlindungan: jika user adalah kasir dan memiliki order, kita lakukan transaksi:
-    // hapus orderItem dari order kasir itu, lalu hapus order, baru hapus kasir.
-    // Ini memastikan cascade delete berjalan sukses tanpa crash!
     await prisma.$transaction(async (tx) => {
-      // Hapus OrderItem milik order user tersebut
       await tx.orderItem.deleteMany({
         where: {
           order: {
@@ -111,14 +194,12 @@ export async function DELETE(request: Request) {
         },
       });
 
-      // Hapus Order milik user tersebut
       await tx.order.deleteMany({
         where: {
           userId: userId,
         },
       });
 
-      // Hapus User
       await tx.user.delete({
         where: {
           id: userId,
@@ -139,7 +220,7 @@ export async function DELETE(request: Request) {
   }
 }
 
-// PUT: Mengubah password user terdaftar
+// PUT: Mengubah data atau password user terdaftar
 export async function PUT(request: Request) {
   try {
     if (!verifyDeveloper(request)) {
@@ -150,37 +231,88 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { userId, newPassword } = body;
+    const { userId, name, email, role, phone, newPassword } = body;
 
-    if (!userId || !newPassword) {
+    if (!userId) {
       return NextResponse.json(
-        { success: false, message: "ID User dan password baru wajib diisi." },
+        { success: false, message: "ID User wajib diisi." },
         { status: 400 }
       );
     }
 
-    if (newPassword.length < 6) {
-      return NextResponse.json(
-        { success: false, message: "Kata sandi minimal harus 6 karakter." },
-        { status: 400 }
-      );
-    }
-
-    // Hash password baru
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update password di database
-    await prisma.user.update({
+    const targetUser = await prisma.user.findUnique({
       where: { id: userId },
-      data: { 
-        password: hashedPassword,
-        plainPassword: newPassword,
-      },
+    });
+
+    if (!targetUser) {
+      return NextResponse.json(
+        { success: false, message: "User tidak ditemukan." },
+        { status: 404 }
+      );
+    }
+
+    const updateData: any = {};
+
+    if (name !== undefined) updateData.name = name;
+
+    if (email !== undefined) {
+      if (!email.includes("@")) {
+        return NextResponse.json(
+          { success: false, message: "Format email tidak valid." },
+          { status: 400 }
+        );
+      }
+      if (email !== targetUser.email) {
+        const emailConflict = await prisma.user.findUnique({
+          where: { email },
+        });
+        if (emailConflict) {
+          return NextResponse.json(
+            { success: false, message: "Email sudah digunakan oleh user lain." },
+            { status: 400 }
+          );
+        }
+      }
+      updateData.email = email;
+    }
+
+    if (role !== undefined) {
+      if (role !== "OWNER" && role !== "KASIR" && role !== "DEVELOPER") {
+        return NextResponse.json(
+          { success: false, message: "Peran (role) tidak valid." },
+          { status: 400 }
+        );
+      }
+      updateData.role = role;
+    }
+
+    if (phone !== undefined) updateData.phone = phone || null;
+
+    if (newPassword !== undefined && newPassword !== "") {
+      if (newPassword.length < 6) {
+        return NextResponse.json(
+          { success: false, message: "Kata sandi minimal harus 6 karakter." },
+          { status: 400 }
+        );
+      }
+      updateData.password = await bcrypt.hash(newPassword, 10);
+      updateData.plainPassword = newPassword;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
     });
 
     return NextResponse.json({
       success: true,
-      message: "Kata sandi user berhasil diperbarui.",
+      message: "Data user berhasil diperbarui.",
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+      },
     });
   } catch (error: any) {
     console.error("Kesalahan API PUT Developer Users:", error);
