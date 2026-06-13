@@ -201,20 +201,20 @@ export default function DeveloperUsersPage() {
                       <th className="p-4 text-center">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs font-medium">
+                  <tbody className="divide-y divide-slate-100 text-xs font-normal">
                     {filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="p-8 text-center text-slate-400 italic">
+                        <td colSpan={7} className="p-8 text-center text-slate-400 italic">
                           Tidak ada pengguna terdaftar.
                         </td>
                       </tr>
                     ) : (
                       filteredUsers.map((usr) => (
                         <tr key={usr.id} className="hover:bg-slate-50/50 transition duration-150">
-                          <td className="p-4 font-black text-slate-800">{usr.name}</td>
+                          <td className="p-4 text-slate-800">{usr.name}</td>
                           <td className="p-4 text-slate-500 font-mono">{usr.email}</td>
                           <td className="p-4">
-                            <div className="flex items-center gap-1.5 font-mono font-bold text-slate-600">
+                            <div className="flex items-center gap-1.5 font-mono text-slate-600">
                               <span>{visiblePasswords[usr.id] ? (usr.plainPassword || "—") : "••••••"}</span>
                               <button
                                 onClick={() => togglePasswordVisibility(usr.id)}
@@ -236,7 +236,7 @@ export default function DeveloperUsersPage() {
                           </td>
                           <td className="p-4">
                             <span
-                              className={`px-2 py-0.5 text-[9px] rounded-full font-bold uppercase border ${
+                              className={`px-2 py-0.5 text-[9px] rounded-full font-medium uppercase border ${
                                 usr.role === "DEVELOPER"
                                   ? "bg-purple-50 text-purple-600 border-purple-250/30"
                                   : usr.role === "OWNER"
@@ -247,7 +247,7 @@ export default function DeveloperUsersPage() {
                               {usr.role}
                             </span>
                           </td>
-                          <td className="p-4 text-slate-500 font-semibold">{usr.tenantName}</td>
+                          <td className="p-4 text-slate-500">{usr.tenantName}</td>
                           <td className="p-4 text-slate-400">
                             {new Date(usr.createdAt).toLocaleDateString("id-ID", {
                               day: "2-digit",
@@ -261,14 +261,14 @@ export default function DeveloperUsersPage() {
                                 setSelectedUser(usr);
                                 setIsModalOpen(true);
                               }}
-                              className="p-1.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-200 rounded-lg text-[10px] font-bold cursor-pointer transition shadow-2xs mr-2 animate-wiggle-hover"
+                              className="p-1.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-200 rounded-lg text-[10px] cursor-pointer transition shadow-2xs mr-2 animate-wiggle-hover"
                             >
                               Ganti Password
                             </button>
                             <button
                               onClick={() => handleDeleteUser(usr.id, usr.email)}
                               disabled={usr.email === currentDevEmail}
-                              className="p-1.5 px-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-[10px] font-bold disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                              className="p-1.5 px-3 bg-red-50 hover:bg-red-100 text-red-650 border border-red-200 rounded-lg text-[10px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
                             >
                               Hapus
                             </button>

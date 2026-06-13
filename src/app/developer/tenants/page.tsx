@@ -53,6 +53,51 @@ export default function DeveloperTenantsPage() {
     loadTenants();
   }, []);
 
+  const getWhatsAppLink = (ten: TenantStats) => {
+    if (!ten.ownerPhone) return "#";
+    
+    let formattedPhone = ten.ownerPhone.replace(/\D/g, "");
+    if (formattedPhone.startsWith("0")) {
+      formattedPhone = "62" + formattedPhone.slice(1);
+    }
+    
+    const expiryDateStr = ten.expiredAt
+      ? new Date(ten.expiredAt).toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })
+      : "Selamanya";
+
+    const message = `Yth. Bapak/Ibu ${ten.ownerName || ""},
+Pemilik Outlet ${ten.name}
+
+Salam hangat dari LaundrSaaS.
+
+Kami ingin menginformasikan bahwa masa aktif layanan paket *${ten.tier}* untuk outlet laundry Anda akan segera berakhir pada tanggal *${expiryDateStr}*.
+
+Untuk memastikan operasional POS kasir dan seluruh sistem transaksi laundry Anda tetap berjalan dengan lancar tanpa gangguan, kami menyarankan Bapak/Ibu untuk melakukan perpanjangan paket layanan tepat waktu melalui halaman Dashboard Owner.
+
+Jika Bapak/Ibu membutuhkan bantuan atau memiliki pertanyaan mengenai proses perpanjangan ini, silakan hubungi kami kembali. Kami akan dengan senang hati membantu Anda.
+
+Terima kasih banyak atas kerja sama dan kepercayaan Anda menggunakan layanan kami.
+
+Hormat kami,
+*Customer Support LaundrSaaS*`;
+
+    return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+  };
+
+  const getPhoneColorClass = (tier: string) => {
+    if (tier === "ENTERPRISE") {
+      return "text-[10px] text-purple-650 font-mono mt-1.5 block w-max";
+    }
+    if (tier === "PRO") {
+      return "text-[10px] text-emerald-600 font-mono mt-1.5 block w-max";
+    }
+    return "text-[10px] text-slate-500 font-mono mt-1.5 block w-max";
+  };
+
   const handleDeleteTenant = async (id: string, name: string) => {
     const confirmDelete = confirm(
       `PERHATIAN! Apakah Anda yakin ingin menghapus Tenant "${name}" secara permanen?\n\nTindakan ini tidak dapat dibatalkan dan akan menghapus:\n- Seluruh Akun User (Owner & Kasir)\n- Seluruh Data Pelanggan\n- Seluruh Master Layanan\n- Seluruh Riwayat Transaksi (Order & OrderItems)`
@@ -145,6 +190,7 @@ export default function DeveloperTenantsPage() {
                       <th className="p-4">Owner / Kontak</th>
                       <th className="p-4">Tipe Paket</th>
                       <th className="p-4">Masa Berlaku</th>
+                      <th className="p-4 text-center">Hubungi WA</th>
                       <th className="p-4">Tanggal Gabung</th>
                       <th className="p-4 text-center">User</th>
                       <th className="p-4 text-center">Customer</th>
@@ -153,10 +199,10 @@ export default function DeveloperTenantsPage() {
                       <th className="p-4 text-center">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs font-medium">
+                  <tbody className="divide-y divide-slate-100 text-xs font-normal">
                     {filteredTenants.length === 0 ? (
                       <tr>
-                        <td colSpan={10} className="p-8 text-center text-slate-400 italic">
+                        <td colSpan={11} className="p-8 text-center text-slate-400 italic">
                           Tidak ada tenant laundry yang terdaftar.
                         </td>
                       </tr>
@@ -164,32 +210,32 @@ export default function DeveloperTenantsPage() {
                       filteredTenants.map((ten) => (
                         <tr key={ten.id} className="hover:bg-slate-50/50 transition duration-150">
                           <td className="p-4">
-                            <span className="block font-black text-slate-800">{ten.name}</span>
+                            <span className="block text-slate-800">{ten.name}</span>
                             <span className="text-[10px] font-mono text-slate-400 block mt-0.5">{ten.id}</span>
                           </td>
                           <td className="p-4">
-                            <span className="block font-bold text-slate-850">{ten.ownerName || "-"}</span>
+                            <span className="block text-slate-850">{ten.ownerName || "-"}</span>
                             {ten.ownerPhone && ten.ownerPhone !== "N/A" ? (
-                              <span className="text-[10px] text-slate-500 block mt-0.5 font-semibold">
-                                📞 {ten.ownerPhone}
+                              <span className={getPhoneColorClass(ten.tier)}>
+                                {ten.ownerPhone}
                               </span>
                             ) : (
-                              <span className="text-[10px] text-slate-400 block mt-0.5 italic">
+                              <span className="text-[10px] text-slate-400 block mt-1.5 italic">
                                 Belum ada kontak
                               </span>
                             )}
                           </td>
                           <td className="p-4">
                             {ten.tier === "PRO" ? (
-                              <span className="inline-flex items-center gap-1 py-1 px-2.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-extrabold uppercase shadow-sm">
-                                🌟 PRO
+                              <span className="text-[10px] tracking-wider text-emerald-600 uppercase">
+                                PRO
                               </span>
                             ) : ten.tier === "ENTERPRISE" ? (
-                              <span className="inline-flex items-center gap-1 py-1 px-2.5 rounded-full bg-purple-50 text-purple-650 border border-purple-200 text-[10px] font-extrabold uppercase shadow-sm">
-                                👑 Enterprise
+                              <span className="text-[10px] tracking-wider text-purple-650 uppercase">
+                                Enterprise
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 py-1 px-2.5 rounded-full bg-slate-55/70 text-slate-500 border border-slate-200/80 text-[10px] font-extrabold uppercase shadow-sm">
+                              <span className="text-[10px] tracking-wider text-slate-500 uppercase">
                                 Starter
                               </span>
                             )}
@@ -200,12 +246,12 @@ export default function DeveloperTenantsPage() {
                                 const expiryDate = new Date(ten.expiredAt);
                                 const isExpired = expiryDate.getTime() < Date.now();
                                 return isExpired ? (
-                                  <span className="inline-flex items-center py-1 px-2.5 rounded-full bg-red-50 text-red-650 border border-red-200 text-[10px] font-extrabold uppercase shadow-sm">
-                                    🔴 Expired / Habis
+                                  <span className="text-[10px] text-red-600 uppercase tracking-wider">
+                                    EXPIRED
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center py-1 px-2.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-extrabold shadow-sm">
-                                    ⏳ s.d. {expiryDate.toLocaleDateString("id-ID", {
+                                  <span className="text-[10px] text-slate-650 font-mono">
+                                    s.d. {expiryDate.toLocaleDateString("id-ID", {
                                       day: "2-digit",
                                       month: "short",
                                       year: "numeric",
@@ -214,9 +260,24 @@ export default function DeveloperTenantsPage() {
                                 );
                               })()
                             ) : (
-                              <span className="inline-flex items-center py-1 px-2.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-extrabold uppercase shadow-sm">
-                                ♾️ Selamanya
+                              <span className="text-[10px] text-slate-450">
+                                Selamanya
                               </span>
+                            )}
+                          </td>
+                          <td className="p-4 text-center">
+                            {ten.ownerPhone && ten.ownerPhone !== "N/A" ? (
+                              <a
+                                href={getWhatsAppLink(ten)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+                                title="Kirim Pengingat WhatsApp"
+                              >
+                                Hubungi
+                              </a>
+                            ) : (
+                              <span className="text-[10px] text-slate-350">-</span>
                             )}
                           </td>
                           <td className="p-4 text-slate-500">
@@ -226,10 +287,10 @@ export default function DeveloperTenantsPage() {
                               year: "numeric",
                             })}
                           </td>
-                          <td className="p-4 text-center text-slate-600 font-bold">{ten.userCount}</td>
-                          <td className="p-4 text-center text-slate-600 font-bold">{ten.customerCount}</td>
-                          <td className="p-4 text-center text-slate-600 font-bold">{ten.orderCount}</td>
-                          <td className="p-4 text-right text-emerald-600 font-mono font-bold">
+                          <td className="p-4 text-center text-slate-600">{ten.userCount}</td>
+                          <td className="p-4 text-center text-slate-600">{ten.customerCount}</td>
+                          <td className="p-4 text-center text-slate-600">{ten.orderCount}</td>
+                          <td className="p-4 text-right text-emerald-600 font-mono">
                             {ten.revenue.toLocaleString("id-ID", {
                               style: "currency",
                               currency: "IDR",
@@ -239,7 +300,7 @@ export default function DeveloperTenantsPage() {
                           <td className="p-4 text-center">
                             <button
                               onClick={() => handleDeleteTenant(ten.id, ten.name)}
-                              className="p-1.5 px-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-[10px] font-bold cursor-pointer transition shadow-2xs"
+                              className="p-1.5 px-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-[10px] cursor-pointer transition shadow-2xs"
                             >
                               Hapus
                             </button>
