@@ -9,6 +9,7 @@ export default function DeveloperOnboardPage() {
   const [tenantName, setTenantName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
+  const [ownerPhone, setOwnerPhone] = useState("");
   const [ownerPassword, setOwnerPassword] = useState("");
   const [tier, setTier] = useState("STARTER");
   const [submitting, setSubmitting] = useState(false);
@@ -29,6 +30,7 @@ export default function DeveloperOnboardPage() {
           tenantName,
           ownerName,
           ownerEmail,
+          ownerPhone,
           ownerPassword,
           tier,
         }),
@@ -40,6 +42,7 @@ export default function DeveloperOnboardPage() {
         setTenantName("");
         setOwnerName("");
         setOwnerEmail("");
+        setOwnerPhone("");
         setOwnerPassword("");
         setTier("STARTER");
         
@@ -128,9 +131,9 @@ export default function DeveloperOnboardPage() {
                   onChange={(e) => setTier(e.target.value)}
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl text-sm text-slate-850 focus:outline-none transition duration-200 font-semibold"
                 >
-                  <option value="STARTER">Starter (Gratis / Rp0)</option>
-                  <option value="PRO">Pro (Rp149.000 / bln)</option>
-                  <option value="ENTERPRISE">Enterprise (Rp299.000 / bln)</option>
+                  <option value="STARTER">Starter (Trial 7 Hari / Rp0)</option>
+                  <option value="PRO">Pro (Rp49.000 / bln)</option>
+                  <option value="ENTERPRISE">Enterprise (Rp149.000 / bln)</option>
                 </select>
               </div>
 
@@ -145,6 +148,21 @@ export default function DeveloperOnboardPage() {
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
                   placeholder="Contoh: Rudi Santoso"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-purple-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition duration-200 font-semibold"
+                />
+              </div>
+
+              {/* Owner Phone */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+                  Nomor WhatsApp / HP Owner
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={ownerPhone}
+                  onChange={(e) => setOwnerPhone(e.target.value)}
+                  placeholder="Contoh: 081234567890"
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-purple-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition duration-200 font-semibold"
                 />
               </div>

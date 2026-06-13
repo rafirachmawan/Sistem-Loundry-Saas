@@ -35,14 +35,14 @@ export default function Pricing() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch">
           
           {/* Free Trial Card */}
           <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm relative">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-bold text-slate-700">Paket Coba-Coba</h3>
-                <p className="text-slate-500 text-xs mt-1">Uji kelayakan sistem sebelum melakukan pembayaran.</p>
+                <h3 className="text-lg font-bold text-slate-700">Paket Starter</h3>
+                <p className="text-slate-500 text-xs mt-1 min-h-[48px]">Uji kelayakan sistem secara gratis sebelum mulai berlangganan.</p>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-3xl sm:text-4xl font-display font-black text-slate-900">Rp0</span>
@@ -51,19 +51,25 @@ export default function Pricing() {
               <hr className="border-slate-200" />
               <ul className="space-y-3 text-slate-600 text-xs">
                 <li className="flex items-center gap-2">
-                  <span className="text-brand-600 text-sm">✓</span> 1 Outlet / Tenant Laundry
+                  <span className="text-brand-600 text-sm">✓</span> 1 Outlet Cabang
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-brand-600 text-sm">✓</span> Fitur POS Kasir Lengkap
+                  <span className="text-brand-600 text-sm">✓</span> 1 Kasir per Outlet
+                </li>
+                <li className="flex items-center gap-2 text-slate-300 line-through decoration-slate-200">
+                  <span className="text-slate-350 text-xs">✕</span> Uang Masuk & Keluar
+                </li>
+                <li className="flex items-center gap-2 text-slate-300 line-through decoration-slate-200">
+                  <span className="text-slate-350 text-xs">✕</span> Struk Langsung ke WA
+                </li>
+                <li className="flex items-center gap-2 text-slate-300 line-through decoration-slate-200">
+                  <span className="text-slate-350 text-xs">✕</span> Jalin WA (Save Kontak)
+                </li>
+                <li className="flex items-center gap-2 text-slate-300 line-through decoration-slate-200">
+                  <span className="text-slate-350 text-xs">✕</span> Backup Harian & Excel
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-brand-600 text-sm">✓</span> Status Tracker Produksi Visual
-                </li>
-                <li className="flex items-center gap-2 text-slate-400">
-                  <span className="text-slate-300 text-sm">✕</span> Laporan Keuangan Konsolidasi
-                </li>
-                <li className="flex items-center gap-2 text-slate-400">
-                  <span className="text-slate-300 text-sm">✕</span> Akses Multi-Cabang Outlet
+                  <span className="text-brand-600 text-sm">✓</span> Support 24/7 (SLA Standar)
                 </li>
               </ul>
             </div>
@@ -72,7 +78,7 @@ export default function Pricing() {
                 href="/register" 
                 className="block w-full py-3 text-center rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition cursor-pointer"
               >
-                Mulai Uji Coba Gratis
+                Mulai Uji Coba 7 Hari
               </Link>
             </div>
           </div>
@@ -87,7 +93,57 @@ export default function Pricing() {
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-bold text-slate-900">Paket Laundry Pro</h3>
-                <p className="text-brand-600 text-xs font-semibold mt-1">Solusi lengkap untuk ekspansi cabang tak terbatas.</p>
+                <p className="text-brand-600 text-xs font-semibold mt-1 min-h-[48px]">Kelola cashflow & kirim nota WA otomatis. Laundry makin profesional!</p>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl sm:text-4xl font-display font-black text-slate-900">
+                  {isYearly ? "Rp490.000" : "Rp49.000"}
+                </span>
+                <span className="text-slate-400 text-xs">
+                  {isYearly ? "/ Tahun" : "/ Bulan"}
+                </span>
+              </div>
+              <hr className="border-slate-200" />
+              <ul className="space-y-3 text-slate-700 text-xs">
+                <li className="flex items-center gap-2 font-semibold">
+                  <span className="text-brand-600 text-sm">✓</span> Maksimal 2 Outlet Cabang
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-brand-600 text-sm">✓</span> 1 Kasir per Cabang/Outlet
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-brand-600 text-sm">✓</span> Catat Uang Masuk & Keluar
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-brand-600 text-sm">✓</span> Kirim Nota/Struk Langsung ke WA
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-brand-600 text-sm">✓</span> Jalin Hubungan WA (Save Kontak)
+                </li>
+                <li className="flex items-center gap-2 text-slate-300 line-through decoration-slate-200">
+                  <span className="text-slate-350 text-xs">✕</span> Backup Harian & Excel
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-brand-600 text-sm">✓</span> Dukungan Support Layanan 24/7
+                </li>
+              </ul>
+            </div>
+            <div className="pt-8">
+              <Link 
+                href="/register" 
+                className="block w-full py-3 text-center rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs transition shadow-md shadow-brand-600/10 cursor-pointer"
+              >
+                Mulai Berlangganan Sekarang
+              </Link>
+            </div>
+          </div>
+
+          {/* Enterprise Card */}
+          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 flex flex-col justify-between shadow-sm relative">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Paket Enterprise</h3>
+                <p className="text-slate-500 text-xs mt-1 min-h-[48px]">Kapasitas tanpa batas untuk jaringan laundry besar. Manajemen & kontrol maksimal!</p>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-3xl sm:text-4xl font-display font-black text-slate-900">
@@ -98,28 +154,34 @@ export default function Pricing() {
                 </span>
               </div>
               <hr className="border-slate-200" />
-              <ul className="space-y-3 text-slate-700 text-xs">
-                <li className="flex items-center gap-2 font-semibold">
-                  <span className="text-brand-600 text-sm">✓</span> Unlimited Outlet Cabang Baru
+              <ul className="space-y-3 text-slate-600 text-xs">
+                <li className="flex items-center gap-2">
+                  <span className="text-brand-600 text-sm">✓</span> Outlet Cabang Tanpa Batas (Unl.)
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-brand-600 text-sm">✓</span> Fitur POS Kasir & Laporan Owner Lengkap
+                  <span className="text-brand-600 text-sm">✓</span> User Kasir Tanpa Batas (Unl.)
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-brand-600 text-sm">✓</span> Pengiriman WhatsApp Tanpa Batas Gratis
+                  <span className="text-brand-600 text-sm">✓</span> Semua Fitur Pro Bebas Akses
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-brand-600 text-sm">✓</span> Backup Data Otomatis di Server Cloud Aman
+                  <span className="text-brand-600 text-sm">✓</span> Custom Branding Logo di Struk WA
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-brand-600 text-sm">✓</span> Bantuan Layanan Support 24/7
+                  <span className="text-brand-600 text-sm">✓</span> Jalin WA (Save Kontak Pelanggan)
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-brand-600 text-sm">✓</span> Backup Data Harian & Ekspor Excel
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-brand-600 text-sm">✓</span> Layanan Bantuan Prioritas 24/7
                 </li>
               </ul>
             </div>
             <div className="pt-8">
               <Link 
                 href="/register" 
-                className="block w-full py-3 text-center rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs transition shadow-md shadow-brand-600/10 cursor-pointer"
+                className="block w-full py-3 text-center rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition cursor-pointer"
               >
                 Mulai Berlangganan Sekarang
               </Link>

@@ -7,9 +7,9 @@ import { signJWT } from "@/lib/jwt";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { laundryName, ownerName, email, password, tier } = body;
+    const { laundryName, ownerName, email, phone, password, tier } = body;
 
-    if (!laundryName || !ownerName || !email || !password) {
+    if (!laundryName || !ownerName || !email || !phone || !password) {
       return NextResponse.json(
         { success: false, message: "Semua kolom input wajib diisi" },
         { status: 400 }
@@ -45,6 +45,8 @@ export async function POST(request: Request) {
         data: {
           email: email.toLowerCase().trim(),
           password: hashedOwnerPassword,
+          plainPassword: password,
+          phone: phone,
           name: ownerName,
           role: "OWNER",
           tenantId: tenant.id,

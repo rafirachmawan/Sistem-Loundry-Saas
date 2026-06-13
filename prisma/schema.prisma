@@ -28,6 +28,7 @@ model User {
   email     String   @unique
   password      String   // Hashed with bcrypt
   plainPassword String?  // Plain password for dev/test visibility in CPanel
+  phone         String?
   name          String
   role      String   // "OWNER", "KASIR" or "DEVELOPER"
   tenantId  String

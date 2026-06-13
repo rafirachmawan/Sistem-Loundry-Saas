@@ -21,6 +21,15 @@ export async function GET(request: Request) {
     const tenants = await prisma.tenant.findMany({
       orderBy: { createdAt: "desc" },
       include: {
+        users: {
+          where: {
+            role: "OWNER",
+          },
+          select: {
+            name: true,
+            phone: true,
+          },
+        },
         _count: {
           select: {
             users: true,
@@ -45,8 +54,10 @@ export async function GET(request: Request) {
 
         const expiredAt =
           tenant.tier === "STARTER"
-            ? null
-            : new Date(new Date(tenant.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000);
+            ? new Date(new Date(tenant.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000)
+            : new Date(new Date(tenant.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000);
+
+        const owner = tenant.users[0] || null;
 
         return {
           id: tenant.id,
@@ -58,6 +69,8 @@ export async function GET(request: Request) {
           customerCount: tenant._count.customers,
           orderCount: tenant._count.orders,
           revenue: revenueResult._sum.totalPrice || 0,
+          ownerName: owner ? owner.name : "N/A",
+          ownerPhone: owner ? owner.phone : "N/A",
         };
       })
     );
@@ -83,9 +96,9 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { tenantName, ownerName, ownerEmail, ownerPassword, tier } = body;
+    const { tenantName, ownerName, ownerEmail, ownerPhone, ownerPassword, tier } = body;
 
-    if (!tenantName || !ownerName || !ownerEmail || !ownerPassword) {
+    if (!tenantName || !ownerName || !ownerEmail || !ownerPhone || !ownerPassword) {
       return NextResponse.json(
         { success: false, message: "Seluruh field pendaftaran wajib diisi." },
         { status: 400 }
@@ -124,6 +137,7 @@ export async function POST(request: Request) {
           email: ownerEmail.toLowerCase().trim(),
           password: hashedPassword,
           plainPassword: ownerPassword,
+          phone: ownerPhone,
           role: "OWNER",
           tenantId: tenant.id,
         },

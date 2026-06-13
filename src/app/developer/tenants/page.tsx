@@ -13,6 +13,8 @@ interface TenantStats {
   customerCount: number;
   orderCount: number;
   revenue: number;
+  ownerName?: string;
+  ownerPhone?: string;
 }
 
 export default function DeveloperTenantsPage() {
@@ -140,6 +142,7 @@ export default function DeveloperTenantsPage() {
                   <thead>
                     <tr className="bg-slate-50 text-slate-500 border-b border-slate-200/80 text-[10px] uppercase font-bold tracking-wider">
                       <th className="p-4">Nama Laundry / Tenant</th>
+                      <th className="p-4">Owner / Kontak</th>
                       <th className="p-4">Tipe Paket</th>
                       <th className="p-4">Masa Berlaku</th>
                       <th className="p-4">Tanggal Gabung</th>
@@ -153,7 +156,7 @@ export default function DeveloperTenantsPage() {
                   <tbody className="divide-y divide-slate-100 text-xs font-medium">
                     {filteredTenants.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="p-8 text-center text-slate-400 italic">
+                        <td colSpan={10} className="p-8 text-center text-slate-400 italic">
                           Tidak ada tenant laundry yang terdaftar.
                         </td>
                       </tr>
@@ -163,6 +166,18 @@ export default function DeveloperTenantsPage() {
                           <td className="p-4">
                             <span className="block font-black text-slate-800">{ten.name}</span>
                             <span className="text-[10px] font-mono text-slate-400 block mt-0.5">{ten.id}</span>
+                          </td>
+                          <td className="p-4">
+                            <span className="block font-bold text-slate-850">{ten.ownerName || "-"}</span>
+                            {ten.ownerPhone && ten.ownerPhone !== "N/A" ? (
+                              <span className="text-[10px] text-slate-500 block mt-0.5 font-semibold">
+                                📞 {ten.ownerPhone}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 block mt-0.5 italic">
+                                Belum ada kontak
+                              </span>
+                            )}
                           </td>
                           <td className="p-4">
                             {ten.tier === "PRO" ? (

@@ -42,37 +42,44 @@ export default function BillingPage() {
       price: 0,
       period: "7 Hari",
       features: [
-        "Akses penuh POS Kasir",
-        "Visual Status Tracker",
-        "Maksimal 1 Tenant",
-        "Mock Notifikasi WhatsApp",
+        "✓ 1 Outlet Cabang",
+        "✓ 1 Kasir per Outlet",
+        "✗ Uang Masuk & Keluar",
+        "✗ Struk Langsung ke WA",
+        "✗ Jalin WA (Save Kontak)",
+        "✗ Backup Harian & Excel",
+        "✓ Support 24/7 (SLA Standar)",
       ],
     },
     {
       id: "pro",
       name: "Paket Pro Bulanan",
-      price: 150000,
+      price: 49000,
       period: "Bulan",
       popular: true,
       features: [
-        "Akses penuh POS Kasir",
-        "Visual Status Tracker",
-        "Dasbor Analitik Keuangan Owner",
-        "Unpaid Alert System",
-        "Notifikasi WhatsApp Real-time",
-        "Dukungan printer struk Bluetooth",
+        "✓ Max 2 Outlet Cabang",
+        "✓ 1 Kasir per Outlet",
+        "✓ Uang Masuk & Keluar",
+        "✓ Struk Langsung ke WA",
+        "✓ Jalin WA (Save Kontak)",
+        "✗ Backup Harian & Excel",
+        "✓ Support 24/7",
       ],
     },
     {
       id: "enterprise",
-      name: "Paket Pro Tahunan",
-      price: 1500000,
-      period: "Tahun",
+      name: "Paket Enterprise Bulanan",
+      price: 149000,
+      period: "Bulan",
       features: [
-        "Semua fitur Paket Pro",
-        "Masa aktif 12 Bulan (Hemat 2 Bulan)",
-        "Dukungan bantuan setup awal",
-        "Prioritas bantuan teknis 24/7",
+        "✓ Outlet Cabang Unl.",
+        "✓ User Kasir Unl.",
+        "✓ Uang Masuk & Keluar",
+        "✓ Struk WA Custom Logo",
+        "✓ Jalin WA (Save Kontak)",
+        "✓ Backup Harian & Excel",
+        "✓ Support Prioritas 24/7",
       ],
     },
   ];
@@ -89,7 +96,7 @@ export default function BillingPage() {
     setTimeout(() => {
       setConfirming(false);
       setSubStatus("ACTIVE");
-      setDaysRemaining(selectedPlan?.id === "pro" ? 30 : 365);
+      setDaysRemaining(30);
       setShowModal(false);
       setSuccessMsg(`Berhasil! Langganan Anda diperbarui ke "${selectedPlan?.name}"`);
       // Sembunyikan pesan sukses setelah 4 detik
@@ -203,13 +210,18 @@ export default function BillingPage() {
                       </div>
 
                       {/* Features list */}
-                      <ul className="space-y-2 text-xs text-slate-600 font-semibold border-t border-slate-100 pt-4">
-                        {plan.features.map((feat, idx) => (
-                          <li key={idx} className="flex items-center gap-2">
-                            <span className="text-emerald-500 font-bold">✓</span>
-                            <span>{feat}</span>
-                          </li>
-                        ))}
+                      <ul className="space-y-2 text-xs text-slate-650 font-semibold border-t border-slate-100 pt-4 min-h-[175px]">
+                        {plan.features.map((feat, idx) => {
+                          const isExcluded = feat.startsWith("✗");
+                          return (
+                            <li key={idx} className={`flex items-center gap-2 ${isExcluded ? "text-slate-300 line-through decoration-slate-200" : ""}`}>
+                              <span className={isExcluded ? "text-slate-350" : "text-emerald-500 font-bold"}>
+                                {isExcluded ? "✗" : "✓"}
+                              </span>
+                              <span>{feat.substring(2)}</span>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
 
