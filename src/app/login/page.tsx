@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -9,7 +9,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("savedEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +35,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setError(data.message || "Email atau password salah");
+        setError(data.message || "Akun atau password salah");
         setLoading(false);
         return;
       }
@@ -34,6 +43,12 @@ export default function LoginPage() {
       // Berhasil login, simpan info user ke localStorage
       const user = data.user;
       localStorage.setItem("user", JSON.stringify(user));
+
+      if (rememberMe) {
+        localStorage.setItem("savedEmail", email);
+      } else {
+        localStorage.removeItem("savedEmail");
+      }
 
       // Arahkan berdasarkan role
       if (user.role === "DEVELOPER") {
@@ -139,14 +154,14 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
                 <label className="block text-[10px] uppercase tracking-wider font-extrabold text-slate-500">
-                  Email Akun
+                  Email / Nama Pengguna
                 </label>
                 <div className="relative">
                   <input
-                    type="email"
+                    type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="owner@laundrease.com"
+                    placeholder="email atau nama pengguna"
                     required
                     className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:bg-white transition duration-200 font-semibold"
                   />
@@ -165,6 +180,19 @@ export default function LoginPage() {
                   required
                   className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:bg-white transition duration-200 font-semibold"
                 />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 text-brand-600 bg-slate-50 border-slate-300 rounded focus:ring-brand-500 focus:ring-2"
+                />
+                <label htmlFor="rememberMe" className="text-xs font-semibold text-slate-500 cursor-pointer">
+                  Simpan Akun
+                </label>
               </div>
 
               <button

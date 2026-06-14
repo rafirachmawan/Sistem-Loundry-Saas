@@ -20,6 +20,13 @@ export default function OwnerServicesPage() {
   const [editPrice, setEditPrice] = useState("");
   const [editLoading, setEditLoading] = useState(false);
 
+  // State untuk Tambah Layanan
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [newUnit, setNewUnit] = useState("KG");
+  const [addLoading, setAddLoading] = useState(false);
+
   const fetchServices = async () => {
     try {
       const res = await fetch("/api/services");
@@ -81,6 +88,52 @@ export default function OwnerServicesPage() {
     }
   };
 
+  const handleCreateService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName || !newPrice || !newUnit) return;
+    setAddLoading(true);
+
+    try {
+      const res = await fetch("/api/services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName, price: newPrice, unit: newUnit }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setServices([...services, data.service]);
+        setShowAddModal(false);
+        setNewName("");
+        setNewPrice("");
+        setNewUnit("KG");
+      } else {
+        alert(data.message || "Gagal menambah layanan");
+      }
+    } catch (err) {
+      alert("Kesalahan jaringan");
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
+  const handleDeleteService = async (serviceId: string) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus layanan ini?")) return;
+
+    try {
+      const res = await fetch(`/api/services/${serviceId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setServices(services.filter((svc) => svc.id !== serviceId));
+      } else {
+        alert(data.message || "Gagal menghapus layanan");
+      }
+    } catch (err) {
+      alert("Kesalahan jaringan");
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
       {/* Sidebar Navigation */}
@@ -97,9 +150,17 @@ export default function OwnerServicesPage() {
             </h1>
             <p className="text-xs text-slate-400 mt-0.5 font-medium">Kelola jenis layanan cucian dan tarif master outlet Anda</p>
           </div>
-          <span className="text-xs py-1 px-3 rounded-full bg-brand-50 text-brand-600 border border-brand-200/50 font-bold shadow-sm">
-            Owner Mode
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md shadow-brand-600/20 transition-all cursor-pointer flex items-center gap-2"
+            >
+              <span>+</span> Tambah Layanan
+            </button>
+            <span className="text-xs py-1 px-3 rounded-full bg-brand-50 text-brand-600 border border-brand-200/50 font-bold shadow-sm">
+              Owner Mode
+            </span>
+          </div>
         </header>
 
         {/* Services Content Grid */}
@@ -187,15 +248,23 @@ export default function OwnerServicesPage() {
                           </span>
                         </div>
                         
-                        <button
-                          onClick={() => handleStartEdit(svc)}
-                          className="px-4 py-2 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 border border-slate-200/80 hover:border-brand-200/60 text-xs font-bold rounded-xl transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-sm"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                          Edit Tarif
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleStartEdit(svc)}
+                            className="px-4 py-2 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 border border-slate-200/80 hover:border-brand-200/60 text-xs font-bold rounded-xl transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteService(svc.id)}
+                            className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 hover:border-red-200 text-xs font-bold rounded-xl transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                          >
+                            Hapus
+                          </button>
+                        </div>
                       </>
                     )}
                   </div>
@@ -206,6 +275,46 @@ export default function OwnerServicesPage() {
           )}
 
         </main>
+
+        {/* Add Service Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-fade-in-up">
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 className="text-lg font-display font-extrabold text-slate-800">Tambah Layanan Baru</h3>
+                <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+              <form onSubmit={handleCreateService} className="p-6 space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Nama Layanan</label>
+                  <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} placeholder="Contoh: Cuci Sepatu" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Harga (Rp)</label>
+                    <input type="number" required value={newPrice} onChange={e => setNewPrice(e.target.value)} placeholder="0" className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Satuan</label>
+                    <select value={newUnit} onChange={e => setNewUnit(e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+                      <option value="KG">KG</option>
+                      <option value="PCS">PCS</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="pt-4 flex items-center justify-end gap-3">
+                  <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                  <button type="submit" disabled={addLoading} className="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition shadow-md shadow-brand-600/20 disabled:opacity-50 flex items-center gap-2">
+                    {addLoading && <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>}
+                    Simpan Layanan
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

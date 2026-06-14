@@ -67,3 +67,62 @@ export async function PATCH(
     );
   }
 }
+
+// Handler DELETE untuk menghapus layanan
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const tenantId = request.headers.get("x-tenant-id");
+    const userRole = request.headers.get("x-user-role");
+    const { id } = await params;
+
+    if (!tenantId || userRole !== "OWNER") {
+      return NextResponse.json(
+        { success: false, message: "Akses ditolak: Hanya pemilik (owner) yang diizinkan menghapus layanan" },
+        { status: 403 }
+      );
+    }
+
+    // Cek keberadaan layanan
+    const existingService = await prisma.service.findFirst({
+      where: { id, tenantId },
+      include: {
+        _count: {
+          select: { orderItems: true }
+        }
+      }
+    });
+
+    if (!existingService) {
+      return NextResponse.json(
+        { success: false, message: "Layanan tidak ditemukan atau bukan milik tenant Anda" },
+        { status: 404 }
+      );
+    }
+
+    // Proteksi: Jangan hapus jika sudah ada order item
+    if (existingService._count.orderItems > 0) {
+      return NextResponse.json(
+        { success: false, message: "Gagal menghapus: Layanan ini sudah pernah digunakan dalam transaksi riwayat pesanan." },
+        { status: 400 }
+      );
+    }
+
+    await prisma.service.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Layanan berhasil dihapus",
+    });
+  } catch (error: any) {
+    console.error("Kesalahan API DELETE Service ID:", error);
+    return NextResponse.json(
+      { success: false, message: "Terjadi kesalahan internal server" },
+      { status: 500 }
+    );
+  }
+}

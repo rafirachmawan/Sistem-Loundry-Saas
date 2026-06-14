@@ -11,20 +11,25 @@ export async function POST(request: Request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, message: "Email dan password wajib diisi" },
+        { success: false, message: "Email/Nama dan password wajib diisi" },
         { status: 400 }
       );
     }
 
-    // Cari user berdasarkan email
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+    // Cari user berdasarkan email atau nama pengguna
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email.toLowerCase().trim() },
+          { name: email.trim() }
+        ]
+      },
       include: { tenant: true },
     });
 
     if (!user) {
       return NextResponse.json(
-        { success: false, message: "Email atau password salah" },
+        { success: false, message: "Akun atau password salah" },
         { status: 401 }
       );
     }
@@ -33,7 +38,7 @@ export async function POST(request: Request) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(
-        { success: false, message: "Email atau password salah" },
+        { success: false, message: "Akun atau password salah" },
         { status: 401 }
       );
     }
