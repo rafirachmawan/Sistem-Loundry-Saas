@@ -65,33 +65,16 @@ export default function RegisterPage() {
           <div className="absolute top-0 right-0 w-80 h-80 bg-brand-500 rounded-full filter blur-[120px] opacity-15 animate-pulse-glow"></div>
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-500 rounded-full filter blur-[120px] opacity-15 animate-pulse-glow"></div>
 
-          {/* Logo Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-emerald-300 flex items-center justify-center shadow-lg shadow-brand-500/25">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                />
-              </svg>
+          <div className="flex flex-col">
+            {/* Logo Brand */}
+            <div className="flex items-start mb-12 mt-4">
+              <Link href="/" className="flex items-center">
+                <span className="text-3xl font-bold text-white tracking-tight">LondriOS</span>
+              </Link>
             </div>
-            <Link
-              href="/"
-              className="text-xl font-display font-extrabold text-white tracking-tight"
-            >
-              Laundr<span className="text-brand-300">SaaS</span>
-            </Link>
-          </div>
 
-          {/* Showcase Copy */}
-          <div className="space-y-8 max-w-lg">
+            {/* Showcase Copy */}
+            <div className="space-y-8 max-w-lg">
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-emerald-400/10 text-emerald-350 border border-emerald-400/20 text-xs font-bold uppercase tracking-wide">
                 🎁 PROMO LAUNCHING
@@ -127,9 +110,11 @@ export default function RegisterPage() {
               </div>
             </div>
           </div>
+          </div>
 
+          {/* Footer Copy */}
           <span className="text-xs text-brand-200/40 font-medium">
-            © 2026 LaundrSaaS Corporation. All rights reserved.
+            © 2026 LondriOS Corporation. All rights reserved.
           </span>
         </div>
 

@@ -10,19 +10,9 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 pt-4">
       <nav className="mx-auto max-w-7xl glass-panel rounded-2xl px-6 py-4 flex items-center justify-between transition-all duration-300">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center shadow-lg shadow-brand-600/20 text-white font-display font-bold text-xl">
-            L
-          </div>
-          <div>
-            <span className="font-display font-bold text-xl tracking-tight text-slate-900">
-              Laundr<span className="text-brand-600">SaaS</span>
-            </span>
-            <span className="block text-[9px] text-slate-500 font-medium tracking-widest uppercase">
-              Multi-Tenant POS
-            </span>
-          </div>
-        </div>
+        <Link href="/" className="flex items-center">
+          <span className="text-2xl font-bold text-brand-600 tracking-tight">LondriOS</span>
+        </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8 font-medium text-slate-600 text-sm">

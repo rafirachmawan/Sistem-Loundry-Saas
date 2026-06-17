@@ -207,7 +207,7 @@ export default function BillingPage() {
                   {plans.find((p) => p.id === activePlanId)?.name || "Masa Uji Coba Gratis (Free Trial)"}
                 </h2>
                 <p className="text-xs text-slate-400 font-semibold">
-                  Status: <span className="text-slate-700 font-bold">{subStatus === "TRIAL" ? "Free Trial" : "Berlangganan Aktif"}</span> | Akun Owner: <span className="text-slate-700">{user?.email || "owner@laundrsaas.com"}</span>
+                  Status: <span className="text-slate-700 font-bold">{subStatus === "TRIAL" ? "Free Trial" : "Berlangganan Aktif"}</span> | Akun Owner: <span className="text-slate-700">{user?.email || "owner@londrios.com"}</span>
                 </p>
               </div>
 

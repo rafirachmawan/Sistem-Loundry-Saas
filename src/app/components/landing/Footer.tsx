@@ -37,13 +37,10 @@ export default function Footer() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
           
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white font-display font-bold text-base">
-                L
+            <div className="flex items-start">
+              <div className="w-24 h-24 flex items-center justify-center -ml-4 -mt-4">
+                <img src="/logo.png" alt="LondriOS Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="font-display font-bold text-lg text-white">
-                Laundr<span className="text-brand-600">SaaS</span>
-              </span>
             </div>
             <p className="text-slate-500 text-xs">
               Sistem SaaS manajemen operasional laundry terlengkap untuk wirausahawan modern Indonesia.
@@ -73,7 +70,7 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4 text-xs sm:text-sm">Kontak Kami</h4>
             <ul className="space-y-2 text-xs text-slate-500">
-              <li>📧 info@laundrsaas.com</li>
+              <li>📧 info@londrios.com</li>
               <li>📞 +62 821-2345-6789 (WhatsApp Support)</li>
               <li>📍 Jakarta, Indonesia</li>
             </ul>
@@ -82,7 +79,7 @@ export default function Footer() {
         </div>
         
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-slate-900 text-center text-xs text-slate-600">
-          © 2026 LaundrSaaS Corporation. Hak Cipta Dilindungi Undang-Undang.
+          © 2026 LondriOS Corporation. Hak Cipta Dilindungi Undang-Undang.
         </div>
       </footer>
     </>

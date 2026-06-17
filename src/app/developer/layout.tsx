@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CPanel Developer - LaundrSaaS",
+  title: "CPanel Developer - LondriOS",
   description: "Panel kontrol administrator sistem global Laundry SaaS Multi-Tenant.",
 };
 

@@ -190,16 +190,9 @@ export default function Sidebar() {
       <aside className="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between hidden md:flex z-30">
         <div>
           {/* Logo Brand */}
-          <div className="p-6">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/10 group-hover:rotate-6 transition duration-300">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
-              </div>
-              <span className="text-lg font-display font-extrabold tracking-tight text-slate-800">
-                Laundr<span className="text-brand-600">SaaS</span>
-              </span>
+          <div className="p-4">
+            <Link href="/" className="flex items-center justify-center w-28 h-28 group-hover:rotate-6 transition duration-300 mx-auto">
+              <img src="/logo.png" alt="LondriOS Logo" className="w-full h-full object-contain" />
             </Link>
           </div>
 

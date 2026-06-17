@@ -8,7 +8,7 @@ export default function ReceiptCustomizationPage() {
   const [activePlanId, setActivePlanId] = useState<string>("trial");
   
   // Settings State
-  const [headerText, setHeaderText] = useState("Terima kasih telah mencuci di LaundrSaaS!");
+  const [headerText, setHeaderText] = useState("Terima kasih telah mencuci di LondriOS!");
   const [footerText, setFooterText] = useState("Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami.");
   const [useCustomLogo, setUseCustomLogo] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -33,8 +33,8 @@ export default function ReceiptCustomizationPage() {
         setActivePlanId(currentPlan);
 
         if (currentPlan !== "enterprise") {
-          setHeaderText("Terima kasih telah mencuci di LaundrSaaS!");
-          setFooterText("Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami. Cek riwayat laundry Anda melalui aplikasi LaundrSaaS.");
+          setHeaderText("Terima kasih telah mencuci di LondriOS!");
+          setFooterText("Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami. Cek riwayat laundry Anda melalui aplikasi LondriOS.");
         }
         
         // Mock loading data
@@ -226,7 +226,7 @@ export default function ReceiptCustomizationPage() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">👤</div>
                     <div>
-                      <h4 className="text-sm font-bold leading-tight">LaundrSaaS</h4>
+                      <h4 className="text-sm font-bold leading-tight">LondriOS</h4>
                       <p className="text-[10px] opacity-80">Akun Bisnis</p>
                     </div>
                   </div>

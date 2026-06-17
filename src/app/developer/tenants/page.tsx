@@ -235,7 +235,7 @@ export default function DeveloperTenantsPage() {
     const message = `Yth. Bapak/Ibu ${ten.ownerName || ""},
 Pemilik Outlet ${ten.name}
 
-Salam hangat dari LaundrSaaS.
+Salam hangat dari LondriOS.
 
 Kami ingin menginformasikan bahwa masa aktif layanan paket *${ten.tier}* untuk outlet laundry Anda akan segera berakhir pada tanggal *${expiryDateStr}*.
 
@@ -246,7 +246,7 @@ Jika Bapak/Ibu membutuhkan bantuan atau memiliki pertanyaan mengenai proses perp
 Terima kasih banyak atas kerja sama dan kepercayaan Anda menggunakan layanan kami.
 
 Hormat kami,
-*Customer Support LaundrSaaS*`;
+*Customer Support LondriOS*`;
 
     return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
   };

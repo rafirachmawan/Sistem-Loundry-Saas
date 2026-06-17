@@ -17,7 +17,7 @@ export default function Hero() {
           </span>
         </h1>
         <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0">
-          LaundrSaaS membantu pemilik outlet laundry mencatat transaksi kasir &lt; 1 menit, memantau proses produksi cucian secara visual, dan menerima laporan keuangan otomatis.
+          LondriOS membantu pemilik outlet laundry mencatat transaksi kasir &lt; 1 menit, memantau proses produksi cucian secara visual, dan menerima laporan keuangan otomatis.
         </p>
 
         {/* Call-to-Actions */}
