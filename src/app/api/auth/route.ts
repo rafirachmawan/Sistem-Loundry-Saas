@@ -73,6 +73,8 @@ export async function POST(request: Request) {
         role: user.role,
         tenantId: user.tenantId,
         tenantName: user.tenant.name,
+        tenantTier: user.tenant.tier,
+        tenantCreatedAt: user.tenant.createdAt,
       },
     });
   } catch (error: any) {

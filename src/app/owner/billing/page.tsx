@@ -15,8 +15,11 @@ interface Plan {
 export default function BillingPage() {
   const [user, setUser] = useState<any>(null);
   const [subStatus, setSubStatus] = useState<"TRIAL" | "ACTIVE">("TRIAL");
-  const [daysRemaining, setDaysRemaining] = useState(5);
+  const [activePlanId, setActivePlanId] = useState<string>("trial");
+  const [expiryDate, setExpiryDate] = useState<Date>(() => new Date(Date.now() + 5 * 24 * 60 * 60 * 1000));
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+
+  const daysRemaining = Math.max(0, Math.ceil((expiryDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
   
   // Modal & Loading States
   const [showModal, setShowModal] = useState(false);
@@ -28,7 +31,37 @@ export default function BillingPage() {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+
+        // Cek data langganan dari backend (saat login) jika ada
+        if (parsed.tenantTier && parsed.tenantCreatedAt) {
+          const createdAt = new Date(parsed.tenantCreatedAt);
+          const isStarter = parsed.tenantTier === "STARTER";
+          
+          setActivePlanId(isStarter ? "trial" : parsed.tenantTier.toLowerCase());
+          setSubStatus(isStarter ? "TRIAL" : "ACTIVE");
+          
+          const expiredAt = isStarter
+            ? new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
+            : new Date(createdAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+          
+          setExpiryDate(expiredAt);
+        } else if (parsed.email === "prolaundry@gmail.com" || parsed.name?.toLowerCase() === "pro") {
+          // Fallback ke mock jika data backend lama (sebelum update auth) belum ada
+          setActivePlanId("pro");
+          setSubStatus("ACTIVE");
+          setExpiryDate(new Date("2026-07-17T10:00:00"));
+        }
+        
+        // Tetap cek apakah ada data override langganan tersimpan di localStorage dari simulasi bayar
+        const savedSub = localStorage.getItem(`sub_${parsed.email}`);
+        if (savedSub) {
+          const sub = JSON.parse(savedSub);
+          setActivePlanId(sub.planId);
+          setSubStatus(sub.status);
+          setExpiryDate(new Date(sub.expiryDate));
+        }
       } catch (e) {
         console.error(e);
       }
@@ -96,7 +129,24 @@ export default function BillingPage() {
     setTimeout(() => {
       setConfirming(false);
       setSubStatus("ACTIVE");
-      setDaysRemaining(30);
+      if (selectedPlan) {
+        setActivePlanId(selectedPlan.id);
+        const newExpiry = new Date();
+        newExpiry.setDate(newExpiry.getDate() + 30); // 30 days for monthly plan
+        setExpiryDate(newExpiry);
+
+        // Simpan langganan ke localStorage agar tidak hilang saat direfresh
+        if (user) {
+          localStorage.setItem(
+            `sub_${user.email}`,
+            JSON.stringify({
+              planId: selectedPlan.id,
+              status: "ACTIVE",
+              expiryDate: newExpiry.toISOString(),
+            })
+          );
+        }
+      }
       setShowModal(false);
       setSuccessMsg(`Berhasil! Langganan Anda diperbarui ke "${selectedPlan?.name}"`);
       // Sembunyikan pesan sukses setelah 4 detik
@@ -145,10 +195,10 @@ export default function BillingPage() {
                   <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Status Akun Saat Ini</span>
                 </div>
                 <h2 className="text-2xl font-display font-black text-slate-800">
-                  {subStatus === "TRIAL" ? "Masa Uji Coba Gratis (Free Trial)" : "Status Aktif Berbayar"}
+                  {plans.find((p) => p.id === activePlanId)?.name || "Masa Uji Coba Gratis (Free Trial)"}
                 </h2>
                 <p className="text-xs text-slate-400 font-semibold">
-                  Gerai: <span className="text-slate-700">{user?.tenantName || "Laundry Anda"}</span> | Akun Owner: <span className="text-slate-700">{user?.email || "owner@laundrsaas.com"}</span>
+                  Status: <span className="text-slate-700 font-bold">{subStatus === "TRIAL" ? "Free Trial" : "Berlangganan Aktif"}</span> | Akun Owner: <span className="text-slate-700">{user?.email || "owner@laundrsaas.com"}</span>
                 </p>
               </div>
 
@@ -158,7 +208,7 @@ export default function BillingPage() {
                 <span className={`text-xl font-black font-mono ${subStatus === "ACTIVE" ? "text-emerald-600" : "text-amber-600"}`}>
                   Sisa {daysRemaining} Hari
                 </span>
-                <span className="text-[9px] text-slate-400 block font-semibold mt-1">Hingga: {new Date(Date.now() + daysRemaining * 24 * 60 * 60 * 1000).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</span>
+                <span className="text-[9px] text-slate-400 block font-semibold mt-1">Hingga: {expiryDate.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</span>
               </div>
             </div>
           </section>
@@ -175,7 +225,7 @@ export default function BillingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {plans.map((plan) => {
-                const isCurrentPlan = (plan.id === "trial" && subStatus === "TRIAL");
+                const isCurrentPlan = plan.id === activePlanId;
                 
                 return (
                   <div
