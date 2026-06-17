@@ -10,6 +10,16 @@ interface User {
   phone: string | null;
   role: string;
   plainPassword?: string | null;
+  branchId?: string | null;
+  branch?: {
+    id: string;
+    name: string;
+  } | null;
+}
+
+interface Branch {
+  id: string;
+  name: string;
 }
 
 export default function OwnerUsersPage() {
@@ -18,6 +28,7 @@ export default function OwnerUsersPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [tier, setTier] = useState("STARTER");
   const [maxUsers, setMaxUsers] = useState(2);
+  const [branches, setBranches] = useState<Branch[]>([]);
 
   // Form State
   const [showModal, setShowModal] = useState(false);
@@ -29,6 +40,7 @@ export default function OwnerUsersPage() {
     phone: "",
     password: "",
     role: "KASIR",
+    branchId: "",
   });
   const [formLoading, setFormLoading] = useState(false);
 
@@ -41,6 +53,11 @@ export default function OwnerUsersPage() {
         setTier(data.tier);
         setMaxUsers(data.maxUsers);
         setErrorMsg("");
+
+        // Fetch branches if tier is ENTERPRISE
+        if (data.tier === "ENTERPRISE") {
+          fetchBranches();
+        }
       } else {
         setErrorMsg(data.message || "Gagal memuat daftar pengguna");
       }
@@ -52,6 +69,18 @@ export default function OwnerUsersPage() {
     }
   };
 
+  const fetchBranches = async () => {
+    try {
+      const res = await fetch("/api/owner/branches");
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBranches(data.branches);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -59,7 +88,7 @@ export default function OwnerUsersPage() {
   const openAddModal = () => {
     setIsEditMode(false);
     setEditId(null);
-    setFormData({ name: "", email: "", phone: "", password: "", role: "KASIR" });
+    setFormData({ name: "", email: "", phone: "", password: "", role: "KASIR", branchId: "" });
     setShowModal(true);
   };
 
@@ -72,6 +101,7 @@ export default function OwnerUsersPage() {
       phone: user.phone || "",
       password: user.plainPassword || "",
       role: user.role,
+      branchId: user.branch?.id || "",
     });
     setShowModal(true);
   };
@@ -197,6 +227,14 @@ export default function OwnerUsersPage() {
                     <h3 className="text-base font-extrabold text-slate-800">{user.name}</h3>
                     <p className="text-xs text-slate-500 mt-1">{user.email}</p>
                     <p className="text-xs text-slate-500 mt-1">{user.phone || "-"}</p>
+                    
+                    {user.branch && (
+                      <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-1 rounded bg-purple-50 border border-purple-100">
+                        <span className="text-xs">🏪</span>
+                        <span className="text-[10px] font-bold text-purple-700">{user.branch.name}</span>
+                      </div>
+                    )}
+
                     {user.plainPassword && (
                       <p className="text-[10px] text-slate-400 mt-2 font-mono">Pass: {user.plainPassword}</p>
                     )}
@@ -258,6 +296,20 @@ export default function OwnerUsersPage() {
                     </select>
                   </div>
                 </div>
+                
+                {tier === "ENTERPRISE" && formData.role === "KASIR" && (
+                  <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                    <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tugaskan ke Cabang (Opsional)</label>
+                    <select value={formData.branchId} onChange={e => setFormData({...formData, branchId: e.target.value})} className="w-full px-4 py-2.5 rounded-xl bg-purple-50 border border-purple-100 text-purple-900 text-sm font-semibold focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
+                      <option value="">-- Pusat / Semua Cabang --</option>
+                      {branches.map(b => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                    </select>
+                    <p className="text-[9px] text-purple-600 mt-1 font-medium">Khusus pengguna Enterprise, Anda dapat mengelompokkan Kasir ke outlet tertentu.</p>
+                  </div>
+                )}
+
                 <div className="pt-4 flex items-center justify-end gap-3">
                   <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition">Batal</button>
                   <button type="submit" disabled={formLoading} className="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition shadow-md shadow-brand-600/20 disabled:opacity-50 flex items-center gap-2">

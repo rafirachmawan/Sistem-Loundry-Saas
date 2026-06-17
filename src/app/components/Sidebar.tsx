@@ -15,12 +15,26 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [activePlanId, setActivePlanId] = useState<string>("trial");
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+
+        if (parsed.tenantTier) {
+          setActivePlanId(parsed.tenantTier === "STARTER" ? "trial" : parsed.tenantTier.toLowerCase());
+        } else if (parsed.email === "prolaundry@gmail.com" || parsed.name?.toLowerCase() === "pro") {
+          setActivePlanId("pro");
+        }
+        
+        const savedSub = localStorage.getItem(`sub_${parsed.email}`);
+        if (savedSub) {
+          const sub = JSON.parse(savedSub);
+          setActivePlanId(sub.planId);
+        }
       } catch (e) {
         console.error(e);
       }
@@ -103,11 +117,30 @@ export default function Sidebar() {
             ),
           },
           {
+            name: "Kelola Cabang",
+            href: "/owner/branches",
+            locked: activePlanId !== "enterprise",
+            icon: (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            ),
+          },
+          {
             name: "Kelola Pengguna",
             href: "/owner/users",
             icon: (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ),
+          },
+          {
+            name: "Customasi Struk",
+            href: "/owner/receipt",
+            icon: (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             ),
           },
@@ -172,8 +205,31 @@ export default function Sidebar() {
 
           {/* Navigation Links */}
           <nav className="px-4 py-2 space-y-1">
-            {menuItems.map((item) => {
+            {menuItems.map((item: any) => {
               const active = pathname === item.href;
+              
+              if (item.locked) {
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => alert(
+                      item.name === "Kelola Cabang" 
+                      ? `Fitur ${item.name} hanya tersedia untuk Paket Enterprise. Silakan upgrade paket Anda di menu Billing & Langganan.`
+                      : `Fitur ${item.name} tidak tersedia di paket Anda. Silakan upgrade paket Anda di menu Billing & Langganan.`
+                    )}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 cursor-not-allowed bg-slate-50/50 hover:bg-slate-100/50 border border-transparent transition-all"
+                  >
+                    <span className="text-slate-400">
+                      {item.icon}
+                    </span>
+                    <span className="flex-1 text-left flex items-center justify-between">
+                      {item.name}
+                      <svg className="w-4 h-4 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path></svg>
+                    </span>
+                  </button>
+                );
+              }
+
               return (
                 <Link
                   key={item.href}
@@ -181,7 +237,7 @@ export default function Sidebar() {
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group ${
                     active
                       ? "bg-brand-50 text-brand-700 border border-brand-200/50"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/50"
+                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 border border-transparent"
                   }`}
                 >
                   <span className={`transition-colors duration-200 ${active ? "text-brand-600" : "text-slate-400 group-hover:text-slate-600"}`}>
@@ -220,21 +276,42 @@ export default function Sidebar() {
 
       {/* 📱 MOBILE FLOATING BOTTOM BAR (Terang) */}
       <nav className="fixed bottom-4 left-4 right-4 h-16 bg-white/95 border border-slate-200/80 backdrop-blur-xl rounded-2xl flex md:hidden items-center justify-around px-4 shadow-[0_4px_25px_rgba(0,0,0,0.06)] z-40">
-        {menuItems.map((item) => {
-          const active = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 ${
-                active ? "text-brand-600 bg-brand-50" : "text-slate-500"
-              }`}
-            >
-              {item.icon}
-              <span className="text-[8px] mt-0.5 font-bold">{item.name.split(" ")[0]}</span>
-            </Link>
-          );
-        })}
+        {menuItems.map((item: any) => {
+              const active = pathname === item.href;
+
+              if (item.locked) {
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => alert(
+                      item.name === "Kelola Cabang" 
+                      ? `Fitur ${item.name} hanya tersedia untuk Paket Enterprise. Silakan upgrade paket Anda di menu Billing & Langganan.`
+                      : `Fitur ${item.name} tidak tersedia di paket Anda. Silakan upgrade paket Anda di menu Billing & Langganan.`
+                    )}
+                    className="flex flex-col items-center justify-center w-12 h-12 rounded-xl text-slate-400 opacity-80 cursor-not-allowed relative"
+                  >
+                    {item.icon}
+                    <span className="text-[8px] mt-0.5 font-bold">{item.name.split(" ")[0]}</span>
+                    <div className="absolute top-1 right-1">
+                      <svg className="w-3 h-3 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path></svg>
+                    </div>
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 ${
+                    active ? "text-brand-600 bg-brand-50" : "text-slate-500"
+                  }`}
+                >
+                  {item.icon}
+                  <span className="text-[8px] mt-0.5 font-bold">{item.name.split(" ")[0]}</span>
+                </Link>
+              );
+            })}
         <button
           onClick={handleLogout}
           className="flex flex-col items-center justify-center w-12 h-12 rounded-xl text-slate-500 hover:text-red-600"

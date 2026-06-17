@@ -20,7 +20,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, email, phone, password, role } = body;
+    const { name, email, phone, password, role, branchId } = body;
 
     // Pastikan user yang akan diupdate milik tenant ini
     const existingUser = await prisma.user.findFirst({
@@ -52,6 +52,7 @@ export async function PUT(
     if (email) updateData.email = email.toLowerCase().trim();
     if (phone !== undefined) updateData.phone = phone?.trim() || null;
     if (role) updateData.role = role === "OWNER" ? "OWNER" : "KASIR";
+    if (branchId !== undefined) updateData.branchId = branchId || null;
 
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);

@@ -31,7 +31,13 @@ export async function GET(request: Request) {
         phone: true,
         role: true,
         createdAt: true,
-        plainPassword: true, // Untuk kemudahan manajemen owner (bisa dihapus jika dirasa kurang aman di prod)
+        plainPassword: true, // Untuk kemudahan manajemen owner
+        branch: {
+          select: {
+            id: true,
+            name: true,
+          }
+        }
       }
     });
 
@@ -69,7 +75,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, password, phone, role } = body;
+    const { name, email, password, phone, role, branchId } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -124,8 +130,9 @@ export async function POST(request: Request) {
         plainPassword: password, // Menyimpan plain password untuk test visibility sesuai schema.prisma
         role: newRole,
         tenantId,
+        branchId: branchId || null,
       },
-      select: { id: true, name: true, email: true, role: true }
+      select: { id: true, name: true, email: true, role: true, branch: { select: { name: true } } }
     });
 
     return NextResponse.json({ success: true, message: "Pengguna berhasil ditambahkan", user });

@@ -16,6 +16,7 @@ model Tenant {
   orders    Order[]
   services  Service[]
   users     User[]
+  branches  Branch[]
 }
 
 model User {
@@ -31,6 +32,21 @@ model User {
   phone         String?
   orders        Order[]
   tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  branchId      String?
+  branch        Branch?  @relation(fields: [branchId], references: [id])
+}
+
+model Branch {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  manager   String?
+  status    String   @default("ACTIVE")
+  tenantId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  users     User[]
 }
 
 model Customer {
