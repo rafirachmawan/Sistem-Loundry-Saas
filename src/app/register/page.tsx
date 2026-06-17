@@ -202,6 +202,9 @@ export default function RegisterPage() {
                         <div className="flex items-center gap-1 text-slate-850">
                           <span>✓ 1 Kasir per Outlet</span>
                         </div>
+                        <div className="flex items-center gap-1 text-slate-850">
+                          <span>✓ Max 3 Master Layanan</span>
+                        </div>
                         <div className="flex items-center gap-1 text-slate-300 line-through decoration-slate-200">
                           <span>✗ Uang Masuk & Keluar</span>
                         </div>
@@ -267,6 +270,9 @@ export default function RegisterPage() {
                           <span>✓ 1 Kasir per Outlet</span>
                         </div>
                         <div className="flex items-center gap-1 text-slate-850">
+                          <span>✓ Max 10 Master Layanan</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-slate-850">
                           <span>✓ Uang Masuk & Keluar</span>
                         </div>
                         <div className="flex items-center gap-1 text-slate-850">
@@ -326,6 +332,9 @@ export default function RegisterPage() {
                         </div>
                         <div className="flex items-center gap-1 text-slate-850">
                           <span>✓ User Kasir Unl.</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-slate-850">
+                          <span>✓ Master Layanan Unl.</span>
                         </div>
                         <div className="flex items-center gap-1 text-slate-850">
                           <span>✓ Uang Masuk & Keluar</span>

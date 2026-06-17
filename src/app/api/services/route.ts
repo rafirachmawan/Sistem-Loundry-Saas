@@ -42,7 +42,35 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, price, unit } = body;
+    const { name, price, unit, planId } = body;
+
+    // Cek batas layanan berdasarkan tier tenant
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { tier: true, _count: { select: { services: true } } }
+    });
+
+    if (!tenant) {
+      return NextResponse.json({ success: false, message: "Tenant tidak ditemukan" }, { status: 404 });
+    }
+
+    const currentServicesCount = tenant._count.services;
+    
+    // Override dari frontend mock jika tersedia
+    let tier = tenant.tier.toUpperCase();
+    if (planId === "pro") tier = "PRO";
+    if (planId === "enterprise") tier = "ENTERPRISE";
+    
+    let limit = 3; // STARTER
+    if (tier === "PRO") limit = 10;
+    if (tier === "ENTERPRISE") limit = Infinity;
+
+    if (currentServicesCount >= limit) {
+      return NextResponse.json(
+        { success: false, message: `Batas maksimal layanan untuk paket ${tier} telah tercapai (${limit} layanan). Upgrade paket Anda di menu Billing.` },
+        { status: 403 }
+      );
+    }
 
     if (!name || price === undefined || !unit) {
       return NextResponse.json(

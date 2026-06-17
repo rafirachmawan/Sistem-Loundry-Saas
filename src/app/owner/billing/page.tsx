@@ -35,16 +35,22 @@ export default function BillingPage() {
         setUser(parsed);
 
         // Cek data langganan dari backend (saat login) jika ada
-        if (parsed.tenantTier && parsed.tenantCreatedAt) {
-          const createdAt = new Date(parsed.tenantCreatedAt);
+        if (parsed.tenantTier) {
           const isStarter = parsed.tenantTier === "STARTER";
           
           setActivePlanId(isStarter ? "trial" : parsed.tenantTier.toLowerCase());
           setSubStatus(isStarter ? "TRIAL" : "ACTIVE");
           
-          const expiredAt = isStarter
-            ? new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
-            : new Date(createdAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+          let expiredAt;
+          if (parsed.tenantCreatedAt) {
+            const createdAt = new Date(parsed.tenantCreatedAt);
+            expiredAt = isStarter
+              ? new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000)
+              : new Date(createdAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+          } else {
+            // Fallback default 7 / 30 days from now if createdAt is missing
+            expiredAt = new Date(Date.now() + (isStarter ? 7 : 30) * 24 * 60 * 60 * 1000);
+          }
           
           setExpiryDate(expiredAt);
         } else if (parsed.email === "prolaundry@gmail.com" || parsed.name?.toLowerCase() === "pro") {
@@ -77,6 +83,7 @@ export default function BillingPage() {
       features: [
         "✓ 1 Outlet Cabang",
         "✓ 1 Kasir per Outlet",
+        "✓ Max 3 Master Layanan",
         "✗ Uang Masuk & Keluar",
         "✗ Struk Langsung ke WA",
         "✗ Jalin WA (Save Kontak)",
@@ -93,6 +100,7 @@ export default function BillingPage() {
       features: [
         "✓ Max 2 Outlet Cabang",
         "✓ 1 Kasir per Outlet",
+        "✓ Max 10 Master Layanan",
         "✓ Uang Masuk & Keluar",
         "✓ Struk Langsung ke WA",
         "✓ Jalin WA (Save Kontak)",
@@ -108,6 +116,7 @@ export default function BillingPage() {
       features: [
         "✓ Outlet Cabang Unl.",
         "✓ User Kasir Unl.",
+        "✓ Master Layanan Unl.",
         "✓ Uang Masuk & Keluar",
         "✓ Struk WA Custom Logo",
         "✓ Jalin WA (Save Kontak)",

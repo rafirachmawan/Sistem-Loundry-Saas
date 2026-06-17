@@ -27,6 +27,9 @@ export default function OwnerServicesPage() {
   const [newUnit, setNewUnit] = useState("KG");
   const [addLoading, setAddLoading] = useState(false);
 
+  // State untuk Langganan
+  const [activePlanId, setActivePlanId] = useState<string>("trial");
+
   const fetchServices = async () => {
     try {
       const res = await fetch("/api/services");
@@ -47,7 +50,39 @@ export default function OwnerServicesPage() {
 
   useEffect(() => {
     fetchServices();
+
+    // Check subscription plan from localStorage
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        if (parsed.tenantTier) {
+          setActivePlanId(parsed.tenantTier === "STARTER" ? "trial" : parsed.tenantTier.toLowerCase());
+        } else if (parsed.email === "prolaundry@gmail.com" || parsed.name?.toLowerCase() === "pro") {
+          setActivePlanId("pro");
+        }
+        
+        const savedSub = localStorage.getItem(`sub_${parsed.email}`);
+        if (savedSub) {
+          const sub = JSON.parse(savedSub);
+          setActivePlanId(sub.planId);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }, []);
+
+  // Hitung batas layanan
+  const getServiceLimit = () => {
+    if (activePlanId === "enterprise") return Infinity;
+    if (activePlanId === "pro") return 10;
+    return 3; // trial / starter
+  };
+  
+  const limit = getServiceLimit();
+  const currentCount = services.length;
+  const canAddMore = currentCount < limit;
 
   const handleStartEdit = (service: Service) => {
     setEditId(service.id);
@@ -97,7 +132,7 @@ export default function OwnerServicesPage() {
       const res = await fetch("/api/services", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName, price: newPrice, unit: newUnit }),
+        body: JSON.stringify({ name: newName, price: newPrice, unit: newUnit, planId: activePlanId }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -152,8 +187,17 @@ export default function OwnerServicesPage() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setShowAddModal(true)}
-              className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md shadow-brand-600/20 transition-all cursor-pointer flex items-center gap-2"
+              onClick={() => {
+                if (canAddMore) {
+                  setShowAddModal(true);
+                } else {
+                  alert(`Batas maksimal layanan untuk paket ${activePlanId.toUpperCase()} telah tercapai (${limit} layanan). Upgrade paket Anda di menu Billing.`);
+                }
+              }}
+              disabled={!canAddMore}
+              className={`px-4 py-2 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2 ${
+                canAddMore ? "bg-brand-600 hover:bg-brand-500 shadow-brand-600/20 cursor-pointer" : "bg-slate-400 cursor-not-allowed opacity-70"
+              }`}
             >
               <span>+</span> Tambah Layanan
             </button>
@@ -186,10 +230,32 @@ export default function OwnerServicesPage() {
               <span className="w-8 h-8 border-3 border-slate-200 border-t-brand-500 rounded-full animate-spin"></span>
               <p className="text-slate-400 text-xs font-semibold">Mengambil tarif master...</p>
             </div>
+          ) : services.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-4 p-8 text-center glass-panel rounded-2xl border-dashed border-2 border-slate-300">
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-3xl mb-2">
+                📦
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">Belum Ada Layanan</h3>
+              <p className="text-sm text-slate-500 max-w-sm">
+                Tambahkan master tarif layanan Anda untuk mulai menerima pesanan kasir. (Maksimal {limit === Infinity ? "Unlimited" : limit} layanan untuk paket Anda)
+              </p>
+              {canAddMore && (
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="mt-2 px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold rounded-xl shadow-md shadow-brand-600/20 transition-all cursor-pointer"
+                >
+                  + Tambah Layanan Pertama
+                </button>
+              )}
+            </div>
           ) : (
             
             /* Card Grid Layout for Services (Terang) */
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="text-xs font-semibold text-slate-500 flex justify-end">
+                Layanan digunakan: <span className="font-bold text-slate-700 ml-1">{currentCount} / {limit === Infinity ? "Unlimited" : limit}</span>
+              </div>
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {services.map((svc) => (
                 <div
                   key={svc.id}
@@ -271,7 +337,8 @@ export default function OwnerServicesPage() {
 
                 </div>
               ))}
-            </section>
+              </section>
+            </div>
           )}
 
         </main>

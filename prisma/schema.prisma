@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,76 +10,76 @@ model Tenant {
   id        String     @id @default(uuid())
   name      String
   tier      String     @default("STARTER")
-  users     User[]
-  customers Customer[]
-  services  Service[]
-  orders    Order[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  customers Customer[]
+  orders    Order[]
+  services  Service[]
+  users     User[]
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password      String   // Hashed with bcrypt
-  plainPassword String?  // Plain password for dev/test visibility in CPanel
-  phone         String?
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
   name          String
-  role      String   // "OWNER", "KASIR" or "DEVELOPER"
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  orders    Order[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role          String
+  tenantId      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  plainPassword String?
+  phone         String?
+  orders        Order[]
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
 }
 
 model Customer {
   id        String   @id @default(uuid())
   name      String
-  phone     String   // Nomor WhatsApp
+  phone     String
   tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  orders    Order[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  orders    Order[]
 }
 
 model Service {
-  id        String      @id @default(uuid())
-  name      String      // e.g., "Cuci Setrika Kiloan"
-  price     Float     // Harga master yang berlaku saat ini
-  unit      String      // "KG" atau "PCS"
-  tenantId  String
-  tenant    Tenant      @relation(fields: [tenantId], references: [id])
+  id         String      @id @default(uuid())
+  name       String
+  price      Float
+  unit       String
+  tenantId   String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
   orderItems OrderItem[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
 }
 
 model Order {
   id            String      @id @default(uuid())
-  invoiceNumber String      @unique // Format: INV-YYYYMMDD-XXXX
-  status        String      // QUEUED, IN_PROGRESS, READY, COMPLETED
-  paymentTerm   String      // PREPAID, POSTPAID
-  paymentStatus String      // PAID, UNPAID
+  invoiceNumber String      @unique
+  status        String
+  paymentTerm   String
+  paymentStatus String
   totalPrice    Float
   tenantId      String
-  tenant        Tenant      @relation(fields: [tenantId], references: [id])
   customerId    String
-  customer      Customer    @relation(fields: [customerId], references: [id])
-  userId        String      // Kasir yang menginput
-  user          User        @relation(fields: [userId], references: [id])
-  items         OrderItem[]
+  userId        String
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  user          User        @relation(fields: [userId], references: [id])
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  items         OrderItem[]
 }
 
 model OrderItem {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   orderId   String
-  order     Order    @relation(fields: [orderId], references: [id])
   serviceId String
-  service   Service  @relation(fields: [serviceId], references: [id])
   quantity  Float
-  priceSnap Float  // Snapshot harga saat transaksi (Anti-Fraud & History-Proof)
+  priceSnap Float
+  service   Service @relation(fields: [serviceId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id])
 }
