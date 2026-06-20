@@ -8,11 +8,12 @@ export async function PATCH(
 ) {
   try {
     const tenantId = request.headers.get("x-tenant-id");
+    const userId = request.headers.get("x-user-id");
     const { id } = await params;
 
-    if (!tenantId) {
+    if (!tenantId || !userId) {
       return NextResponse.json(
-        { success: false, message: "Akses ditolak: tenant_id tidak valid" },
+        { success: false, message: "Akses ditolak: kredensial tidak valid" },
         { status: 400 }
       );
     }
@@ -50,11 +51,26 @@ export async function PATCH(
         }
       }
       updateData.status = status;
+      updateData.statusHistory = {
+        create: {
+          status: status,
+          userId: userId,
+        }
+      };
     }
 
     // 2. Logika Pelunasan Pembayaran
     if (paymentStatus) {
       updateData.paymentStatus = paymentStatus;
+      if (paymentStatus === "PAID" && order.paymentStatus !== "PAID") {
+        updateData.payments = {
+          create: {
+            amount: order.totalPrice,
+            paymentMethod: "CASH",
+            userId: userId,
+          }
+        };
+      }
     }
 
     // Eksekusi pembaruan ke database

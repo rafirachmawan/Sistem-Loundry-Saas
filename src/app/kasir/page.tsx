@@ -35,6 +35,7 @@ export default function KasirPOSPage() {
   const [showRegForm, setShowRegForm] = useState(false);
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newCustomerPhone, setNewCustomerPhone] = useState("");
+  const [newCustomerAddress, setNewCustomerAddress] = useState("");
   const [customerLoading, setCustomerLoading] = useState(false);
 
   // States Layanan & POS
@@ -44,6 +45,8 @@ export default function KasirPOSPage() {
   const [quantityInput, setQuantityInput] = useState<number>(1);
   const [orderItems, setOrderItems] = useState<OrderItemInput[]>([]);
   const [paymentTerm, setPaymentTerm] = useState<"PREPAID" | "POSTPAID">("PREPAID");
+  const [orderNotes, setOrderNotes] = useState("");
+  const [estimatedCompletionDate, setEstimatedCompletionDate] = useState("");
   
   // Submit & UI States
   const [submitting, setSubmitting] = useState(false);
@@ -109,7 +112,7 @@ export default function KasirPOSPage() {
       const res = await fetch("/api/customers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newCustomerName, phone: newCustomerPhone }),
+        body: JSON.stringify({ name: newCustomerName, phone: newCustomerPhone, address: newCustomerAddress }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -117,6 +120,7 @@ export default function KasirPOSPage() {
         setSearchQuery("");
         setNewCustomerName("");
         setNewCustomerPhone("");
+        setNewCustomerAddress("");
         setShowRegForm(false);
       } else {
         setErrorMsg(data.message || "Gagal mendaftarkan pelanggan");
@@ -167,6 +171,8 @@ export default function KasirPOSPage() {
     const payload = {
       customerId: selectedCustomer.id,
       paymentTerm,
+      notes: orderNotes,
+      estimatedCompletionDate: estimatedCompletionDate || null,
       items: orderItems.map((item) => ({
         serviceId: item.serviceId,
         quantity: item.quantity,
@@ -185,6 +191,8 @@ export default function KasirPOSPage() {
         setSelectedCustomer(null);
         setOrderItems([]);
         setSearchQuery("");
+        setOrderNotes("");
+        setEstimatedCompletionDate("");
       } else {
         setErrorMsg(data.message || "Gagal menyimpan transaksi");
       }
@@ -323,6 +331,13 @@ export default function KasirPOSPage() {
                           className="px-4 py-3 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-500 font-semibold"
                         />
                       </div>
+                      <input
+                        type="text"
+                        placeholder="Alamat Pelanggan (Opsional)..."
+                        value={newCustomerAddress}
+                        onChange={(e) => setNewCustomerAddress(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-500 font-semibold"
+                      />
                       <button
                         type="submit"
                         className="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 active:bg-brand-755 text-white text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer shadow-md shadow-brand-600/10 flex items-center gap-1.5"
@@ -485,7 +500,29 @@ export default function KasirPOSPage() {
               {/* Payment details & checkout */}
               <div className="pt-5 border-t border-dashed border-slate-200 space-y-4">
                 
-                <div className="flex justify-between items-center gap-4">
+                {/* Notes & Date */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Catatan Pesanan</label>
+                    <textarea
+                      placeholder="Misal: Jangan pakai pemutih..."
+                      value={orderNotes}
+                      onChange={(e) => setOrderNotes(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 resize-none h-16"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Estimasi Selesai</label>
+                    <input
+                      type="datetime-local"
+                      value={estimatedCompletionDate}
+                      onChange={(e) => setEstimatedCompletionDate(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-brand-500 h-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center gap-4 pt-2">
                   <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Metode Bayar</span>
                   <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 w-fit">
                     <button

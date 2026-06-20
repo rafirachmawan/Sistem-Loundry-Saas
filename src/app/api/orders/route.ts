@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { customerId, paymentTerm, items } = body;
+    const { customerId, paymentTerm, items, notes, estimatedCompletionDate } = body;
 
     // Validasi parameter wajib
     if (!customerId || !paymentTerm || !items || !Array.isArray(items) || items.length === 0) {
@@ -111,6 +111,23 @@ export async function POST(request: Request) {
         { success: false, message: "Parameter transaksi tidak lengkap atau tidak valid" },
         { status: 400 }
       );
+    }
+
+    // Ambil branchId dari User (atau fallback ke cabang pertama Tenant)
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    
+    let branchId = user?.branchId;
+    if (!branchId) {
+      const firstBranch = await prisma.branch.findFirst({ where: { tenantId } });
+      if (!firstBranch) {
+        return NextResponse.json(
+          { success: false, message: "Tidak ada cabang yang terdaftar untuk tenant ini" },
+          { status: 400 }
+        );
+      }
+      branchId = firstBranch.id;
     }
 
     // Ambil data pelanggan untuk validasi
@@ -186,6 +203,9 @@ export async function POST(request: Request) {
         tenantId,
         customerId,
         userId,
+        branchId: branchId,
+        notes: notes || null,
+        estimatedCompletionDate: estimatedCompletionDate ? new Date(estimatedCompletionDate) : null,
         items: {
           create: orderItemsToCreate,
         },

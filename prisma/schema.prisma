@@ -20,45 +20,51 @@ model Tenant {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  password      String
-  name          String
-  role          String
-  tenantId      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
-  phone         String?
-  orders        Order[]
-  tenant        Tenant   @relation(fields: [tenantId], references: [id])
-  branchId      String?
-  branch        Branch?  @relation(fields: [branchId], references: [id])
+  id             String               @id @default(uuid())
+  email          String               @unique
+  password       String
+  name           String
+  role           String
+  tenantId       String
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  deletedAt      DateTime?
+  phone          String?
+  orders         Order[]
+  tenant         Tenant               @relation(fields: [tenantId], references: [id])
+  branchId       String?
+  branch         Branch?              @relation(fields: [branchId], references: [id])
+  statusHistory  OrderStatusHistory[]
+  payments       Payment[]
+  stockMovements StockMovement[]
 }
 
 model Branch {
-  id        String   @id @default(uuid())
-  name      String
-  address   String
-  manager   String?
-  status    String   @default("ACTIVE")
-  tenantId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  users     User[]
+  id             String          @id @default(uuid())
+  name           String
+  address        String
+  manager        String?
+  status         String          @default("ACTIVE")
+  tenantId       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  users          User[]
+  orders         Order[]
+  inventoryItems InventoryItem[]
 }
 
 model Customer {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
   phone     String
+  address   String?
   tenantId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
   orders    Order[]
 }
 
@@ -76,21 +82,27 @@ model Service {
 }
 
 model Order {
-  id            String      @id @default(uuid())
-  invoiceNumber String      @unique
-  status        String
-  paymentTerm   String
-  paymentStatus String
-  totalPrice    Float
-  tenantId      String
-  customerId    String
-  userId        String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  user          User        @relation(fields: [userId], references: [id])
-  customer      Customer    @relation(fields: [customerId], references: [id])
-  tenant        Tenant      @relation(fields: [tenantId], references: [id])
-  items         OrderItem[]
+  id                      String               @id @default(uuid())
+  invoiceNumber           String               @unique
+  status                  String
+  paymentTerm             String
+  paymentStatus           String
+  totalPrice              Float
+  estimatedCompletionDate DateTime?
+  notes                   String?
+  tenantId                String
+  customerId              String
+  userId                  String
+  branchId                String
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+  user                    User                 @relation(fields: [userId], references: [id])
+  customer                Customer             @relation(fields: [customerId], references: [id])
+  tenant                  Tenant               @relation(fields: [tenantId], references: [id])
+  branch                  Branch               @relation(fields: [branchId], references: [id])
+  items                   OrderItem[]
+  statusHistory           OrderStatusHistory[]
+  payments                Payment[]
 }
 
 model OrderItem {
@@ -99,8 +111,53 @@ model OrderItem {
   serviceId String
   quantity  Float
   priceSnap Float
+  notes     String?
   service   Service @relation(fields: [serviceId], references: [id])
   order     Order   @relation(fields: [orderId], references: [id])
+}
+
+model OrderStatusHistory {
+  id        String   @id @default(uuid())
+  orderId   String
+  status    String
+  userId    String
+  changedAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  orderId       String
+  amount        Float
+  paymentMethod String
+  paymentDate   DateTime @default(now())
+  userId        String
+  order         Order    @relation(fields: [orderId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model InventoryItem {
+  id             String          @id @default(uuid())
+  name           String
+  sku            String?
+  stock          Float           @default(0)
+  unit           String
+  branchId       String
+  branch         Branch          @relation(fields: [branchId], references: [id])
+  stockMovements StockMovement[]
+}
+
+model StockMovement {
+  id        String        @id @default(uuid())
+  itemId    String
+  type      String
+  quantity  Float
+  reason    String?
+  userId    String
+  createdAt DateTime      @default(now())
+  item      InventoryItem @relation(fields: [itemId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
 }
 
 model AuditLog {

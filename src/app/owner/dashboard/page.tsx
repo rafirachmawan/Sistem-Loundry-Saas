@@ -21,12 +21,23 @@ interface ChartData {
   rawDate: string;
 }
 
+interface LowStockAlert {
+  id: string;
+  name: string;
+  stock: number;
+  unit: string;
+  branch: {
+    name: string;
+  };
+}
+
 interface AnalyticsData {
   omsetToday: number;
   piutangBerjalan: number;
   ordersTodayCount: number;
   unpaidAlerts: UnpaidAlert[];
   chartData: ChartData[];
+  lowStockAlerts: LowStockAlert[];
 }
 
 export default function OwnerDashboardPage() {
@@ -151,7 +162,7 @@ export default function OwnerDashboardPage() {
                     {analytics.omsetToday.toLocaleString("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })}
                   </span>
                   <p className="text-[10px] text-slate-400 mt-3 font-semibold leading-relaxed">
-                    Hanya mengakumulasi transaksi dengan status pembayaran PAID hari ini.
+                    Menghitung total pelunasan (Payment) yang masuk khusus di hari ini.
                   </p>
                 </div>
 
@@ -346,6 +357,41 @@ export default function OwnerDashboardPage() {
                 </div>
 
               </div>
+
+              {/* 3. INVENTORY ALERTS */}
+              <div className="glass-panel rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-display font-bold uppercase tracking-wider text-red-600 flex items-center gap-2">
+                    <span className="w-1.5 h-3 rounded bg-red-500"></span>
+                    🚨 Low Stock Alerts (Peringatan Stok Menipis)
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5 mb-6 font-semibold">
+                    Barang operasional gudang dengan sisa stok 5 atau kurang di seluruh cabang.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {analytics.lowStockAlerts.length === 0 ? (
+                    <div className="col-span-full text-center py-8 text-xs text-slate-450 italic border border-dashed border-slate-200 rounded-xl font-semibold">
+                      Aman. Tidak ada stok bahan baku yang menipis.
+                    </div>
+                  ) : (
+                    analytics.lowStockAlerts.map((item) => (
+                      <div key={item.id} className="p-4 rounded-xl bg-red-50 border border-red-100 flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-800">{item.name}</h4>
+                          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Cabang: {item.branch.name}</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-red-400 font-bold uppercase mb-0.5">Sisa</p>
+                          <p className="text-xl font-black font-mono text-red-600">{item.stock.toFixed(1)} <span className="text-[10px] font-bold text-red-500">{item.unit}</span></p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
             </>
           )}
         </main>

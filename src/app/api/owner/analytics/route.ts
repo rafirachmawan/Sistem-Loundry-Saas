@@ -15,15 +15,14 @@ export async function GET(request: Request) {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
-    // 1. Omset Aktual Hari Ini: Sum total order PAID hari ini
-    const paidOrdersToday = await prisma.order.findMany({
+    // 1. Omset Aktual Hari Ini: Sum total PAYMENT hari ini (Lebih akurat untuk pelunasan piutang lama)
+    const paymentsToday = await prisma.payment.findMany({
       where: {
-        tenantId,
-        paymentStatus: "PAID",
-        createdAt: { gte: startOfToday },
+        paymentDate: { gte: startOfToday },
+        order: { tenantId },
       },
     });
-    const omsetToday = paidOrdersToday.reduce((sum, o) => sum + o.totalPrice, 0);
+    const omsetToday = paymentsToday.reduce((sum, p) => sum + p.amount, 0);
 
     // 2. Piutang Berjalan: Sum total order UNPAID (semua waktu)
     const unpaidOrders = await prisma.order.findMany({
@@ -107,6 +106,18 @@ export async function GET(request: Request) {
       }))
       .reverse();
 
+    // 6. Low Stock Alerts
+    const lowStockAlerts = await prisma.inventoryItem.findMany({
+      where: {
+        branch: { tenantId },
+        stock: { lte: 5 },
+      },
+      include: {
+        branch: true,
+      },
+      orderBy: { stock: "asc" },
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -115,6 +126,7 @@ export async function GET(request: Request) {
         ordersTodayCount,
         unpaidAlerts,
         chartData,
+        lowStockAlerts,
       },
     });
   } catch (error: any) {
