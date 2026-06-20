@@ -43,7 +43,6 @@ export async function GET(request: Request) {
       phone: u.phone || "",
       createdAt: u.createdAt,
       tenantName: u.tenant.name,
-      plainPassword: u.plainPassword,
     }));
 
     return NextResponse.json({ success: true, users: formattedUsers });
@@ -120,7 +119,6 @@ export async function POST(request: Request) {
         name,
         email,
         password: hashedPassword,
-        plainPassword: password,
         role,
         phone: phone || null,
       },
@@ -296,7 +294,6 @@ export async function PUT(request: Request) {
         );
       }
       updateData.password = await bcrypt.hash(newPassword, 10);
-      updateData.plainPassword = newPassword;
     }
 
     const updatedUser = await prisma.user.update({

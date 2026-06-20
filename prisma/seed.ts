@@ -38,7 +38,6 @@ async function main() {
     data: {
       email: "dev@laundry.com",
       password: hashedDev,
-      plainPassword: "dev123",
       name: "Rafi (Developer)",
       role: "DEVELOPER",
       tenantId: tenantDev.id,
@@ -59,7 +58,6 @@ async function main() {
       {
         email: "owner@laundrease.com",
         password: hashedOwnerA,
-        plainPassword: "owner123",
         name: "Bambang (Owner A)",
         role: "OWNER",
         tenantId: tenantA.id,
@@ -67,7 +65,6 @@ async function main() {
       {
         email: "kasir@laundrease.com",
         password: hashedKasirA,
-        plainPassword: "kasir123",
         name: "Ani (Kasir A)",
         role: "KASIR",
         tenantId: tenantA.id,
@@ -130,7 +127,6 @@ async function main() {
       {
         email: "owner@cleanfresh.com",
         password: hashedOwnerB,
-        plainPassword: "owner456",
         name: "Joni (Owner B)",
         role: "OWNER",
         tenantId: tenantB.id,
@@ -138,7 +134,6 @@ async function main() {
       {
         email: "kasir@cleanfresh.com",
         password: hashedKasirB,
-        plainPassword: "kasir456",
         name: "Dedi (Kasir B)",
         role: "KASIR",
         tenantId: tenantB.id,

@@ -45,7 +45,6 @@ export async function POST(request: Request) {
         data: {
           email: email.toLowerCase().trim(),
           password: hashedOwnerPassword,
-          plainPassword: password,
           phone: phone,
           name: ownerName,
           role: "OWNER",
