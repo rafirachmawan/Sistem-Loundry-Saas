@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { updateUserSchema } from "@/lib/validations/user-schema";
 
 // Handler PUT untuk mengupdate data pengguna (Kasir)
 export async function PUT(
@@ -20,7 +21,16 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, email, phone, password, role, branchId } = body;
+    const validationResult = updateUserSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { success: false, message: validationResult.error.errors[0].message },
+        { status: 400 }
+      );
+    }
+
+    const { name, email, phone, password, role, branchId } = validationResult.data;
 
     // Pastikan user yang akan diupdate milik tenant ini
     const existingUser = await prisma.user.findFirst({
@@ -48,6 +58,18 @@ export async function PUT(
     }
 
     const updateData: any = {};
+
+    if (branchId) {
+      const branchExists = await prisma.branch.findFirst({
+        where: { id: branchId, tenantId }
+      });
+      if (!branchExists) {
+        return NextResponse.json(
+          { success: false, message: "Cabang tidak valid atau bukan milik Anda" },
+          { status: 400 }
+        );
+      }
+    }
     if (name) updateData.name = name.trim();
     if (email) updateData.email = email.toLowerCase().trim();
     if (phone !== undefined) updateData.phone = phone?.trim() || null;
@@ -56,7 +78,6 @@ export async function PUT(
 
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);
-      updateData.plainPassword = password;
     }
 
     const updatedUser = await prisma.user.update({
@@ -128,8 +149,9 @@ export async function DELETE(
       }
     }
 
-    await prisma.user.delete({
-      where: { id }
+    await prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date() }
     });
 
     return NextResponse.json({ success: true, message: "Pengguna berhasil dihapus" });

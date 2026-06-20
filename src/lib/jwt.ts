@@ -1,8 +1,9 @@
 import { SignJWT, jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "laundry-saas-super-secret-key-that-is-very-long-and-secure-123"
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined in environment variables");
+}
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export interface JWTPayload {
   userId: string;

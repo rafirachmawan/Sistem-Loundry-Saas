@@ -9,7 +9,6 @@ interface User {
   email: string;
   phone: string | null;
   role: string;
-  plainPassword?: string | null;
   branchId?: string | null;
   branch?: {
     id: string;
@@ -99,7 +98,7 @@ export default function OwnerUsersPage() {
       name: user.name,
       email: user.email,
       phone: user.phone || "",
-      password: user.plainPassword || "",
+      password: "",
       role: user.role,
       branchId: user.branch?.id || "",
     });
@@ -235,9 +234,7 @@ export default function OwnerUsersPage() {
                       </div>
                     )}
 
-                    {user.plainPassword && (
-                      <p className="text-[10px] text-slate-400 mt-2 font-mono">Pass: {user.plainPassword}</p>
-                    )}
+
                   </div>
                   <div className="pt-4 border-t border-slate-100 flex items-center gap-2">
                     <button

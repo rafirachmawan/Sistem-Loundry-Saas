@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { createUserSchema } from "@/lib/validations/user-schema";
 
 // Mapping limits for tiers
 const TIER_LIMITS: Record<string, number> = {
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
     }
 
     const users = await prisma.user.findMany({
-      where: { tenantId },
+      where: { tenantId, deletedAt: null },
       orderBy: { createdAt: "asc" },
       select: {
         id: true,
@@ -31,7 +32,6 @@ export async function GET(request: Request) {
         phone: true,
         role: true,
         createdAt: true,
-        plainPassword: true, // Untuk kemudahan manajemen owner
         branch: {
           select: {
             id: true,
@@ -75,14 +75,16 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, password, phone, role, branchId } = body;
+    const validationResult = createUserSchema.safeParse(body);
 
-    if (!name || !email || !password) {
+    if (!validationResult.success) {
       return NextResponse.json(
-        { success: false, message: "Nama, email, dan password wajib diisi" },
+        { success: false, message: validationResult.error.errors[0].message },
         { status: 400 }
       );
     }
+
+    const { name, email, password, phone, role, branchId } = validationResult.data;
 
     const newRole = role === "OWNER" ? "OWNER" : "KASIR";
 
@@ -127,7 +129,6 @@ export async function POST(request: Request) {
         email: email.toLowerCase().trim(),
         phone: phone?.trim() || null,
         password: hashedPassword,
-        plainPassword: password, // Menyimpan plain password untuk test visibility sesuai schema.prisma
         role: newRole,
         tenantId,
         branchId: branchId || null,
