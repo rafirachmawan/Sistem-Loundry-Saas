@@ -95,6 +95,31 @@ export default function OwnerDashboardPage() {
     }
   };
 
+  // Test Kirim WA Langsung ke Gateway
+  const handleTestWA = async () => {
+    const phone = window.prompt("Masukkan nomor WA Anda (contoh: 081234567890):");
+    if (!phone) return;
+
+    try {
+      const res = await fetch("http://localhost:3001/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target: phone,
+          message: "Halo! Ini adalah pesan TEST dari Sistem LondriOS. WhatsApp Gateway Lokal Anda sudah berfungsi dengan sangat baik! 🎉"
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.alert("✅ Pesan berhasil dikirim! Silakan cek WA di HP Anda.");
+      } else {
+        window.alert("❌ Gagal mengirim: " + data.message);
+      }
+    } catch (err) {
+      window.alert("❌ Error: Pastikan server Terminal ke-2 (wa-gateway) masih menyala.");
+    }
+  };
+
   // Hitung selisih hari untuk umur piutang
   const getDaysAgo = (dateStr: string) => {
     const created = new Date(dateStr);
@@ -124,9 +149,17 @@ export default function OwnerDashboardPage() {
             </h1>
             <p className="text-xs text-slate-400 mt-0.5 font-medium">Analitik performa finansial dan operasional outlet</p>
           </div>
-          <span className="text-xs py-1 px-3 rounded-full bg-brand-50 text-brand-600 border border-brand-200/50 font-bold shadow-sm">
-            Owner Mode
-          </span>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleTestWA}
+              className="text-xs py-1.5 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-sm shadow-emerald-500/20 transition-all flex items-center gap-1.5"
+            >
+              🚀 Test Gateway WA
+            </button>
+            <span className="text-xs py-1 px-3 rounded-full bg-brand-50 text-brand-600 border border-brand-200/50 font-bold shadow-sm">
+              Owner Mode
+            </span>
+          </div>
         </header>
 
         {/* Dashboard Grid Panel */}

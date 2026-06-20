@@ -69,47 +69,49 @@ export default function RegisterPage() {
             {/* Logo Brand */}
             <div className="flex items-start mb-12 mt-4">
               <Link href="/" className="flex items-center">
-                <span className="text-3xl font-bold text-white tracking-tight">LondriOS</span>
+                <span className="text-3xl font-bold text-white tracking-tight">
+                  LondriOS
+                </span>
               </Link>
             </div>
 
             {/* Showcase Copy */}
             <div className="space-y-8 max-w-lg">
-            <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-emerald-400/10 text-emerald-350 border border-emerald-400/20 text-xs font-bold uppercase tracking-wide">
-                🎁 PROMO LAUNCHING
-              </span>
-              <h1 className="text-4xl md:text-5xl font-display font-extrabold tracking-tight text-white leading-tight">
-                Gratis Uji Coba <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-teal-300">
-                  Full Akses 7 Hari!
+              <div className="space-y-2">
+                <span className="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full bg-emerald-400/10 text-emerald-350 border border-emerald-400/20 text-xs font-bold uppercase tracking-wide">
+                  🎁 PROMO LAUNCHING
                 </span>
-              </h1>
-            </div>
-            <p className="text-brand-100/70 text-sm leading-relaxed font-medium">
-              Daftarkan outlet laundry Anda sekarang dan rasakan kemudahan
-              pengelolaan POS kasir super cepat, pantau antrean visual
-              pengerjaan cucian, serta notifikasi struk digital otomatis ke
-              WhatsApp pelanggan.
-            </p>
+                <h1 className="text-4xl md:text-5xl font-display font-extrabold tracking-tight text-white leading-tight">
+                  Gratis Uji Coba <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-teal-300">
+                    Full Akses 7 Hari!
+                  </span>
+                </h1>
+              </div>
+              <p className="text-brand-100/70 text-sm leading-relaxed font-medium">
+                Daftarkan outlet laundry Anda sekarang dan rasakan kemudahan
+                pengelolaan POS kasir super cepat, pantau antrean visual
+                pengerjaan cucian, serta notifikasi struk digital otomatis ke
+                WhatsApp pelanggan.
+              </p>
 
-            {/* Trial Info Card */}
-            <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 relative overflow-hidden shadow-2xl">
-              <div className="flex gap-4 items-start">
-                <div className="text-2xl">⚡</div>
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-white">
-                    Tanpa Kartu Kredit / Uang Muka
-                  </h4>
-                  <p className="text-xs text-brand-100/60 leading-relaxed font-medium">
-                    Uji coba gratis 1 minggu penuh. Anda bisa memutuskan untuk
-                    berlangganan Paket Pro bulanan setelah masa uji coba
-                    berakhir.
-                  </p>
+              {/* Trial Info Card */}
+              <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 relative overflow-hidden shadow-2xl">
+                <div className="flex gap-4 items-start">
+                  <div className="text-2xl">⚡</div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-white">
+                      Tanpa Kartu Kredit / Uang Muka
+                    </h4>
+                    <p className="text-xs text-brand-100/60 leading-relaxed font-medium">
+                      Uji coba gratis 1 minggu penuh. Anda bisa memutuskan untuk
+                      berlangganan Paket Pro bulanan setelah masa uji coba
+                      berakhir.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           </div>
 
           {/* Footer Copy */}

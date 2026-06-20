@@ -109,6 +109,7 @@ export async function POST(request: Request) {
         role: result.user.role,
         tenantId: result.user.tenantId,
         tenantName: result.tenant.name,
+        tenantTier: result.tenant.tier,
       },
     });
   } catch (error: any) {

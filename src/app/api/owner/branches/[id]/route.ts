@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const tenantId = request.headers.get("x-tenant-id");
@@ -16,7 +16,7 @@ export async function DELETE(
       );
     }
 
-    const branchId = params.id;
+    const branchId = (await params).id;
 
     // Check if branch belongs to tenant
     const branch = await prisma.branch.findFirst({
@@ -58,7 +58,7 @@ export async function DELETE(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const tenantId = request.headers.get("x-tenant-id");
@@ -71,7 +71,7 @@ export async function PUT(
       );
     }
 
-    const branchId = params.id;
+    const branchId = (await params).id;
     const body = await request.json();
     const { name, address, manager, status } = body;
 

@@ -113,22 +113,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Ambil branchId dari User (atau fallback ke cabang pertama Tenant)
+    // Ambil branchId dari User (opsional)
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
     
-    let branchId = user?.branchId;
-    if (!branchId) {
-      const firstBranch = await prisma.branch.findFirst({ where: { tenantId } });
-      if (!firstBranch) {
-        return NextResponse.json(
-          { success: false, message: "Tidak ada cabang yang terdaftar untuk tenant ini" },
-          { status: 400 }
-        );
-      }
-      branchId = firstBranch.id;
-    }
+    let branchId = user?.branchId || null;
 
     // Ambil data pelanggan untuk validasi
     const customer = await prisma.customer.findUnique({
@@ -188,9 +178,9 @@ export async function POST(request: Request) {
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
     const invoiceNumber = `INV-${dateStr}-${randomSuffix}`;
 
-    // Tentukan status pembayaran
-    // PREPAID -> PAID, POSTPAID -> UNPAID
-    const paymentStatus = paymentTerm === "PREPAID" ? "PAID" : "UNPAID";
+    // Secara default, semua transaksi masuk sebagai UNPAID.
+    // Jika menggunakan Midtrans, webhook yang akan mengubahnya menjadi PAID.
+    const paymentStatus = "UNPAID";
 
     // Simpan data order secara atomic dalam database
     const newOrder = await prisma.order.create({
@@ -200,12 +190,12 @@ export async function POST(request: Request) {
         paymentTerm,
         paymentStatus,
         totalPrice,
-        tenantId,
-        customerId,
-        userId,
-        branchId: branchId,
         notes: notes || null,
         estimatedCompletionDate: estimatedCompletionDate ? new Date(estimatedCompletionDate) : null,
+        tenant: { connect: { id: tenantId } },
+        customer: { connect: { id: customerId } },
+        user: { connect: { id: userId } },
+        ...(branchId ? { branch: { connect: { id: branchId } } } : {}),
         items: {
           create: orderItemsToCreate,
         },

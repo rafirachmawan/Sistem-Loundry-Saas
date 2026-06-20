@@ -70,7 +70,6 @@ export default function LoginPage() {
       <div className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-500 rounded-full filter blur-[120px] opacity-10 pointer-events-none"></div>
 
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 min-h-screen z-10">
-        
         {/* 🖥️ LEFT COLUMN: BRANDING SHOWCASE (VISIBLE ON DESKTOP) */}
         <div className="hidden lg:flex lg:col-span-7 flex-col justify-between p-16 bg-gradient-to-br from-brand-900 via-brand-800 to-emerald-950 relative overflow-hidden">
           {/* Animated decorative shapes */}
@@ -81,44 +80,60 @@ export default function LoginPage() {
             {/* Logo Brand */}
             <div className="flex items-start mb-12 mt-4">
               <Link href="/" className="flex items-center">
-                <span className="text-3xl font-bold text-white tracking-tight">LondriOS</span>
+                <span className="text-3xl font-bold text-white tracking-tight">
+                  LondriOS
+                </span>
               </Link>
             </div>
 
             {/* Showcase Copy & Mockup Card */}
             <div className="space-y-8 max-w-lg">
-            <h1 className="text-4xl md:text-5xl font-display font-extrabold tracking-tight text-white leading-tight">
-              Satu Dasbor untuk Kendali <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-teal-300">
-                Operasional Laundry Anda
-              </span>
-            </h1>
-            <p className="text-brand-100/70 text-sm leading-relaxed font-medium">
-              Mulai pencatatan transaksi kasir POS instan, lacak alur produksi cucian dari visual Kanban, hingga ingatkan piutang postpaid pelanggan otomatis melalui WhatsApp.
-            </p>
+              <h1 className="text-4xl md:text-5xl font-display font-extrabold tracking-tight text-white leading-tight">
+                Satu Dasbor untuk Kendali <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-teal-300">
+                  Operasional Laundry Anda
+                </span>
+              </h1>
+              <p className="text-brand-100/70 text-sm leading-relaxed font-medium">
+                Mulai pencatatan transaksi kasir POS instan, lacak alur produksi
+                cucian dari visual Kanban, hingga ingatkan piutang postpaid
+                pelanggan otomatis melalui WhatsApp.
+              </p>
 
-            {/* Glowing Interactive Stats Card Mockup */}
-            <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 relative overflow-hidden shadow-2xl transition duration-300">
-              <div className="absolute top-0 right-0 w-16 h-16 bg-brand-400 rounded-full filter blur-2xl opacity-20"></div>
-              <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  <span className="text-[10px] uppercase font-bold text-brand-200 tracking-wider">Live Monitor POS</span>
+              {/* Glowing Interactive Stats Card Mockup */}
+              <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 relative overflow-hidden shadow-2xl transition duration-300">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-brand-400 rounded-full filter blur-2xl opacity-20"></div>
+                <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span className="text-[10px] uppercase font-bold text-brand-200 tracking-wider">
+                      Live Monitor POS
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-brand-200 font-mono">
+                    Invoice #INV-2026-004
+                  </span>
                 </div>
-                <span className="text-[10px] text-brand-200 font-mono">Invoice #INV-2026-004</span>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-[10px] text-brand-200 block uppercase font-medium">Omset Hari Ini</span>
-                  <span className="text-xl font-display font-bold text-white">Rp 1.450.000</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-brand-200 block uppercase font-medium">Status Produksi</span>
-                  <span className="text-xl font-display font-bold text-emerald-300">92% Siap Ambil</span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[10px] text-brand-200 block uppercase font-medium">
+                      Omset Hari Ini
+                    </span>
+                    <span className="text-xl font-display font-bold text-white">
+                      Rp 1.450.000
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-brand-200 block uppercase font-medium">
+                      Status Produksi
+                    </span>
+                    <span className="text-xl font-display font-bold text-emerald-300">
+                      92% Siap Ambil
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           </div>
 
           {/* Footer Copy */}
@@ -130,14 +145,14 @@ export default function LoginPage() {
         {/* 🔐 RIGHT COLUMN: LOGIN FORM (Terang) */}
         <div className="flex lg:col-span-5 items-center justify-center p-8 bg-white relative border-l border-slate-100 shadow-2xl">
           <div className="w-full max-w-md space-y-8 animate-fade-in-up">
-            
             {/* Header info */}
             <div>
               <h2 className="text-3xl font-display font-black text-slate-800 tracking-tight">
                 Selamat datang kembali
               </h2>
               <p className="text-slate-500 text-xs mt-1.5 leading-relaxed font-medium">
-                Silakan masuk ke akun Anda untuk mengelola transaksi POS dan memantau status laundry hari ini.
+                Silakan masuk ke akun Anda untuk mengelola transaksi POS dan
+                memantau status laundry hari ini.
               </p>
             </div>
 
@@ -187,7 +202,10 @@ export default function LoginPage() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 text-brand-600 bg-slate-50 border-slate-300 rounded focus:ring-brand-500 focus:ring-2"
                 />
-                <label htmlFor="rememberMe" className="text-xs font-semibold text-slate-500 cursor-pointer">
+                <label
+                  htmlFor="rememberMe"
+                  className="text-xs font-semibold text-slate-500 cursor-pointer"
+                >
                   Simpan Akun
                 </label>
               </div>
@@ -207,7 +225,10 @@ export default function LoginPage() {
 
             <p className="text-center text-xs text-slate-500 font-semibold pt-1">
               Belum memiliki akun?{" "}
-              <Link href="/register" className="text-brand-650 hover:text-brand-555 font-bold transition duration-150">
+              <Link
+                href="/register"
+                className="text-brand-650 hover:text-brand-555 font-bold transition duration-150"
+              >
                 Daftar Akun Baru
               </Link>
             </p>
@@ -219,26 +240,42 @@ export default function LoginPage() {
               </span>
               <div className="grid grid-cols-3 gap-2">
                 <div className="p-2 rounded-xl bg-slate-50 border border-slate-150 text-[9px] text-slate-600 space-y-0.5 shadow-sm">
-                  <span className="font-extrabold text-purple-650 block">Developer</span>
-                  <span className="block truncate font-semibold">dev@laundry.com</span>
-                  <span className="text-slate-450 block font-medium">Pass: dev123</span>
+                  <span className="font-extrabold text-purple-650 block">
+                    Developer
+                  </span>
+                  <span className="block truncate font-semibold">
+                    dev@laundry.com
+                  </span>
+                  <span className="text-slate-450 block font-medium">
+                    Pass: dev123
+                  </span>
                 </div>
                 <div className="p-2 rounded-xl bg-slate-50 border border-slate-150 text-[9px] text-slate-600 space-y-0.5 shadow-sm">
-                  <span className="font-extrabold text-brand-600 block">Owner A</span>
-                  <span className="block truncate font-semibold">owner@laundrease.com</span>
-                  <span className="text-slate-450 block font-medium">Pass: owner123</span>
+                  <span className="font-extrabold text-brand-600 block">
+                    Owner A
+                  </span>
+                  <span className="block truncate font-semibold">
+                    owner@laundrease.com
+                  </span>
+                  <span className="text-slate-450 block font-medium">
+                    Pass: owner123
+                  </span>
                 </div>
                 <div className="p-2 rounded-xl bg-slate-50 border border-slate-150 text-[9px] text-slate-600 space-y-0.5 shadow-sm">
-                  <span className="font-extrabold text-emerald-600 block">Kasir A</span>
-                  <span className="block truncate font-semibold">kasir@laundrease.com</span>
-                  <span className="text-slate-450 block font-medium">Pass: kasir123</span>
+                  <span className="font-extrabold text-emerald-600 block">
+                    Kasir A
+                  </span>
+                  <span className="block truncate font-semibold">
+                    kasir@laundrease.com
+                  </span>
+                  <span className="text-slate-450 block font-medium">
+                    Pass: kasir123
+                  </span>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   );

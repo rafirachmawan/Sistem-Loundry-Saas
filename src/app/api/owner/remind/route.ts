@@ -61,36 +61,32 @@ Terima kasih atas kepercayaannya! 🙏
 =========================================
 `;
 
-    // Kirim pesan WA melalui Fonnte Gateway
-    const token = process.env.FONNTE_TOKEN;
-    if (token && token !== "your-fonnte-token-here") {
-      try {
-        const response = await fetch("https://api.fonnte.com/send", {
-          method: "POST",
-          headers: {
-            "Authorization": token,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            target: customerPhone,
-            message: smsTemplate,
-            countryCode: "62"
-          })
-        });
-        const fonnteData = await response.json();
-        if (!fonnteData.status) {
-          console.error("Fonnte error:", fonnteData);
-        }
-      } catch (err) {
-        console.error("Gagal koneksi ke Fonnte:", err);
+    // Kirim pesan WA melalui Local Gateway
+    try {
+      const response = await fetch("http://localhost:3001/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          target: customerPhone,
+          message: smsTemplate
+        })
+      });
+      const data = await response.json();
+      if (!data.success) {
+        console.error("Local WA Gateway error:", data);
+        // Fallback log
+        console.log("[SIMULASI WA] Karena gateway gagal, pesan tercetak:\n", smsTemplate);
       }
-    } else {
-      console.log("[SIMULASI WA] Token Fonnte belum diatur. Pesan:\n", smsTemplate);
+    } catch (err) {
+      console.error("Gagal koneksi ke Local WA Gateway (apakah server wa-gateway menyala?):", err);
+      console.log("[SIMULASI WA] Fallback log:\n", smsTemplate);
     }
 
     return NextResponse.json({
       success: true,
-      message: `Pengingat WhatsApp berhasil dikirim ke nomor ${customerPhone}`,
+      message: `Pengingat WhatsApp berhasil diproses untuk nomor ${customerPhone}`,
     });
   } catch (error: any) {
     console.error("Kesalahan API POST Remind:", error);

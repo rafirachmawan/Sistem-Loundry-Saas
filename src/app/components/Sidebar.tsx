@@ -196,17 +196,9 @@ export default function Sidebar() {
   return (
     <>
       {/* 🖥️ DESKTOP SIDEBAR (Terang) */}
-      <aside className="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-slate-200/80 flex flex-col justify-between hidden md:flex z-30">
-        <div>
-          {/* Logo Brand */}
-          <div className="p-4">
-            <Link href="/" className="flex items-center justify-center w-28 h-28 group-hover:rotate-6 transition duration-300 mx-auto">
-              <img src="/logo.png" alt="LondriOS Logo" className="w-full h-full object-contain" />
-            </Link>
-          </div>
-
-          {/* Navigation Links */}
-          <nav className="px-4 py-2 space-y-1">
+      <aside className="fixed top-0 left-0 h-screen max-h-screen w-64 bg-white border-r border-slate-200/80 flex flex-col hidden md:flex z-30">
+        {/* Navigation Links */}
+        <nav className="flex-1 min-h-0 overflow-y-auto px-4 py-6 space-y-1">
             {menuItems.map((item: any) => {
               const active = pathname === item.href;
               
@@ -249,11 +241,10 @@ export default function Sidebar() {
                 </Link>
               );
             })}
-          </nav>
-        </div>
+        </nav>
 
         {/* User Profile & Logout */}
-        <div className="p-4 border-t border-slate-100 space-y-3 bg-slate-50/50">
+        <div className="flex-shrink-0 p-4 border-t border-slate-100 space-y-3 bg-slate-50/50">
           <div className="flex items-center gap-3 px-3 py-1">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-600 to-emerald-500 border border-brand-200/50 flex items-center justify-center text-white font-extrabold font-display shadow-md">
               {user?.name ? user.name[0].toUpperCase() : "U"}

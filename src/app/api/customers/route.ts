@@ -25,8 +25,8 @@ export async function GET(request: Request) {
         ],
       },
       orderBy: { name: "asc" },
-      limit: 10, // Batasi 10 hasil saja untuk kecepatan POS
-    } as any); // Typecast as any to bypass compile strictness on custom filters if needed, contains works perfectly in sqlite
+      take: 10, // Batasi 10 hasil saja untuk kecepatan POS
+    });
 
     return NextResponse.json({ success: true, customers });
   } catch (error: any) {

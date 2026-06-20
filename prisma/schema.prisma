@@ -93,13 +93,13 @@ model Order {
   tenantId                String
   customerId              String
   userId                  String
-  branchId                String
+  branchId                String?
   createdAt               DateTime             @default(now())
   updatedAt               DateTime             @updatedAt
   user                    User                 @relation(fields: [userId], references: [id])
   customer                Customer             @relation(fields: [customerId], references: [id])
   tenant                  Tenant               @relation(fields: [tenantId], references: [id])
-  branch                  Branch               @relation(fields: [branchId], references: [id])
+  branch                  Branch?              @relation(fields: [branchId], references: [id])
   items                   OrderItem[]
   statusHistory           OrderStatusHistory[]
   payments                Payment[]
@@ -143,8 +143,8 @@ model InventoryItem {
   sku            String?
   stock          Float           @default(0)
   unit           String
-  branchId       String
-  branch         Branch          @relation(fields: [branchId], references: [id])
+  branchId       String?
+  branch         Branch?         @relation(fields: [branchId], references: [id])
   stockMovements StockMovement[]
 }
 

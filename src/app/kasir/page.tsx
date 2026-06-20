@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import Sidebar from "../components/Sidebar";
 
 interface Customer {
@@ -52,6 +53,45 @@ export default function KasirPOSPage() {
   const [submitting, setSubmitting] = useState(false);
   const [successOrder, setSuccessOrder] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [midtransLoading, setMidtransLoading] = useState(false);
+
+  // Trigger Pembayaran Midtrans Snap
+  const handleMidtransPayment = async (orderId: string) => {
+    setMidtransLoading(true);
+    try {
+      const res = await fetch("/api/payments/midtrans/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        // Panggil Snap Pop-up
+        (window as any).snap.pay(data.token, {
+          onSuccess: function (result: any) {
+            alert("Pembayaran berhasil!");
+            setSuccessOrder((prev: any) => ({ ...prev, paymentStatus: "PAID" }));
+          },
+          onPending: function (result: any) {
+            alert("Menunggu pembayaran Anda!");
+          },
+          onError: function (result: any) {
+            alert("Pembayaran gagal!");
+          },
+          onClose: function () {
+            // alert("Anda menutup popup sebelum menyelesaikan pembayaran");
+          },
+        });
+      } else {
+        alert("Gagal memuat Midtrans: " + data.message);
+      }
+    } catch (error) {
+      alert("Terjadi kesalahan jaringan.");
+    } finally {
+      setMidtransLoading(false);
+    }
+  };
 
   // Ambil data master layanan saat mount
   useEffect(() => {
@@ -186,8 +226,16 @@ export default function KasirPOSPage() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (res.ok && data.success) {
+
+      if (data.success) {
         setSuccessOrder(data.order);
+        setSubmitting(false);
+
+        // Jika termin bayar PREPAID, otomatis buka pop-up Midtrans!
+        if (paymentTerm === "PREPAID") {
+          handleMidtransPayment(data.order.id);
+        }
+        
         setSelectedCustomer(null);
         setOrderItems([]);
         setSearchQuery("");
@@ -209,6 +257,13 @@ export default function KasirPOSPage() {
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
+      {/* Midtrans Snap JS */}
+      <Script 
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="lazyOnload"
+      />
+
       {/* Sidebar Navigation */}
       <Sidebar />
 
@@ -626,6 +681,25 @@ export default function KasirPOSPage() {
                 Notifikasi ringkasan nota digital telah dikirim via antrean WhatsApp Gateway latar belakang (cek terminal log backend untuk mock output).
               </p>
             </div>
+
+            {successOrder.paymentTerm === "PREPAID" && (
+              <button
+                onClick={() => handleMidtransPayment(successOrder.id)}
+                disabled={midtransLoading}
+                className="w-full py-3.5 rounded-xl bg-[#00A1A2] hover:bg-[#008f90] text-white text-xs font-bold transition cursor-pointer border border-[#008f90] shadow-md flex justify-center items-center gap-2"
+              >
+                {midtransLoading ? (
+                  <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    Bayar dengan QRIS / E-Wallet (Midtrans)
+                  </>
+                )}
+              </button>
+            )}
 
             <button
               onClick={() => setSuccessOrder(null)}
