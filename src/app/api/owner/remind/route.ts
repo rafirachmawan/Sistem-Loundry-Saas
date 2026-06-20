@@ -61,8 +61,32 @@ Terima kasih atas kepercayaannya! 🙏
 =========================================
 `;
 
-    // Asynchronous console log mock
-    console.log(smsTemplate);
+    // Kirim pesan WA melalui Fonnte Gateway
+    const token = process.env.FONNTE_TOKEN;
+    if (token && token !== "your-fonnte-token-here") {
+      try {
+        const response = await fetch("https://api.fonnte.com/send", {
+          method: "POST",
+          headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            target: customerPhone,
+            message: smsTemplate,
+            countryCode: "62"
+          })
+        });
+        const fonnteData = await response.json();
+        if (!fonnteData.status) {
+          console.error("Fonnte error:", fonnteData);
+        }
+      } catch (err) {
+        console.error("Gagal koneksi ke Fonnte:", err);
+      }
+    } else {
+      console.log("[SIMULASI WA] Token Fonnte belum diatur. Pesan:\n", smsTemplate);
+    }
 
     return NextResponse.json({
       success: true,

@@ -45,6 +45,7 @@ model Branch {
   tenantId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   users     User[]
 }
@@ -56,6 +57,7 @@ model Customer {
   tenantId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   orders    Order[]
 }
@@ -68,6 +70,7 @@ model Service {
   tenantId   String
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+  deletedAt  DateTime?
   orderItems OrderItem[]
   tenant     Tenant      @relation(fields: [tenantId], references: [id])
 }

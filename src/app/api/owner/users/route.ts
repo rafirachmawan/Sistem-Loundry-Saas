@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { createUserSchema } from "@/lib/validations/user-schema";
+import { logAudit } from "@/lib/audit";
 
 // Mapping limits for tiers
 const TIER_LIMITS: Record<string, number> = {
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
   try {
     const tenantId = request.headers.get("x-tenant-id");
     const userRole = request.headers.get("x-user-role");
+    const userId = request.headers.get("x-user-id");
 
     if (!tenantId || userRole !== "OWNER") {
       return NextResponse.json(
@@ -87,6 +89,18 @@ export async function POST(request: Request) {
     const { name, email, password, phone, role, branchId } = validationResult.data;
 
     const newRole = role === "OWNER" ? "OWNER" : "KASIR";
+
+    if (branchId) {
+      const branchExists = await prisma.branch.findFirst({
+        where: { id: branchId, tenantId }
+      });
+      if (!branchExists) {
+        return NextResponse.json(
+          { success: false, message: "Cabang tidak valid atau bukan milik Anda" },
+          { status: 400 }
+        );
+      }
+    }
 
     // Pengecekan Limit Tier
     const currentTenant = await prisma.tenant.findUnique({
@@ -135,6 +149,17 @@ export async function POST(request: Request) {
       },
       select: { id: true, name: true, email: true, role: true, branch: { select: { name: true } } }
     });
+
+    if (userId) {
+      await logAudit({
+        action: "CREATE",
+        entity: "User",
+        entityId: user.id,
+        details: `Menambahkan ${newRole} baru: ${user.name} (${user.email})`,
+        userId,
+        tenantId,
+      });
+    }
 
     return NextResponse.json({ success: true, message: "Pengguna berhasil ditambahkan", user });
   } catch (error: any) {

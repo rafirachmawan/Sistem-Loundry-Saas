@@ -34,6 +34,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (user.deletedAt) {
+      return NextResponse.json(
+        { success: false, message: "Akun ini telah dinonaktifkan" },
+        { status: 401 }
+      );
+    }
+
     // Cek kesesuaian password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {

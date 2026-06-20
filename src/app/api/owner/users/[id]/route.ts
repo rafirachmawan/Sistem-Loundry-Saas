@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { updateUserSchema } from "@/lib/validations/user-schema";
+import { logAudit } from "@/lib/audit";
 
 // Handler PUT untuk mengupdate data pengguna (Kasir)
 export async function PUT(
@@ -11,6 +12,7 @@ export async function PUT(
   try {
     const tenantId = request.headers.get("x-tenant-id");
     const userRole = request.headers.get("x-user-role");
+    const userId = request.headers.get("x-user-id");
 
     if (!tenantId || userRole !== "OWNER") {
       return NextResponse.json(
@@ -86,6 +88,17 @@ export async function PUT(
       select: { id: true, name: true, email: true, role: true }
     });
 
+    if (userId) {
+      await logAudit({
+        action: "UPDATE",
+        entity: "User",
+        entityId: id,
+        details: `Memperbarui data pengguna: ${updatedUser.name} (${updatedUser.email})`,
+        userId,
+        tenantId,
+      });
+    }
+
     return NextResponse.json({ success: true, message: "Pengguna berhasil diperbarui", user: updatedUser });
   } catch (error: any) {
     console.error("Kesalahan API PUT Users:", error);
@@ -153,6 +166,17 @@ export async function DELETE(
       where: { id },
       data: { deletedAt: new Date() }
     });
+
+    if (currentUserId) {
+      await logAudit({
+        action: "DELETE",
+        entity: "User",
+        entityId: id,
+        details: `Menghapus pengguna: ${existingUser.name} (${existingUser.email})`,
+        userId: currentUserId,
+        tenantId,
+      });
+    }
 
     return NextResponse.json({ success: true, message: "Pengguna berhasil dihapus" });
   } catch (error: any) {

@@ -2,32 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  role: string;
-  branchId?: string | null;
-  branch?: {
-    id: string;
-    name: string;
-  } | null;
-}
-
-interface Branch {
-  id: string;
-  name: string;
-}
+import { useUserStore, User } from "@/store/useUserStore";
 
 export default function OwnerUsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [tier, setTier] = useState("STARTER");
-  const [maxUsers, setMaxUsers] = useState(2);
-  const [branches, setBranches] = useState<Branch[]>([]);
+  const { 
+    users, branches, tier, maxUsers, loading, errorMsg, 
+    fetchUsers 
+  } = useUserStore();
 
   // Form State
   const [showModal, setShowModal] = useState(false);
@@ -43,46 +24,9 @@ export default function OwnerUsersPage() {
   });
   const [formLoading, setFormLoading] = useState(false);
 
-  const fetchUsers = async () => {
-    try {
-      const res = await fetch("/api/owner/users");
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setUsers(data.users);
-        setTier(data.tier);
-        setMaxUsers(data.maxUsers);
-        setErrorMsg("");
-
-        // Fetch branches if tier is ENTERPRISE
-        if (data.tier === "ENTERPRISE") {
-          fetchBranches();
-        }
-      } else {
-        setErrorMsg(data.message || "Gagal memuat daftar pengguna");
-      }
-    } catch (err) {
-      console.error(err);
-      setErrorMsg("Kesalahan koneksi jaringan");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchBranches = async () => {
-    try {
-      const res = await fetch("/api/owner/branches");
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setBranches(data.branches);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const openAddModal = () => {
     setIsEditMode(false);
@@ -143,7 +87,7 @@ export default function OwnerUsersPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setUsers(users.filter((u) => u.id !== userId));
+        fetchUsers();
       } else {
         alert(data.message || "Gagal menghapus pengguna");
       }
