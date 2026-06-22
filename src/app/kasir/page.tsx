@@ -55,23 +55,37 @@ export default function KasirPOSPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [midtransLoading, setMidtransLoading] = useState(false);
 
+  // Helper Kirim WhatsApp
+  const sendWhatsAppReceipt = (order: any, isPaid: boolean = false) => {
+    if (!order || !order.customer || !order.customer.phone) return;
+    let phone = order.customer.phone;
+    if (phone.startsWith("0")) phone = "62" + phone.slice(1);
+    
+    const statusText = isPaid ? "*LUNAS*" : "*BELUM LUNAS*";
+    const message = `Halo ${order.customer.name},%0ATransaksi Loundry Anda (Invoice: ${order.invoiceNumber}) telah dicatat.%0A%0AStatus Pembayaran: ${statusText}%0ATotal Tagihan: Rp ${order.totalPrice.toLocaleString("id-ID")}%0A%0ATerima kasih telah mempercayakan pakaian Anda pada kami!`;
+    
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+  };
+
   // Trigger Pembayaran Midtrans Snap
-  const handleMidtransPayment = async (orderId: string) => {
+  const handleMidtransPayment = async (order: any) => {
     setMidtransLoading(true);
     try {
       const res = await fetch("/api/payments/midtrans/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId }),
+        body: JSON.stringify({ orderId: order.id }),
       });
       const data = await res.json();
       
       if (res.ok && data.success) {
         // Panggil Snap Pop-up
         (window as any).snap.pay(data.token, {
-          onSuccess: function (result: any) {
+          onSuccess: async function (result: any) {
             alert("Pembayaran berhasil!");
             setSuccessOrder((prev: any) => ({ ...prev, paymentStatus: "PAID" }));
+            // Otomatis kirim nota WA setelah berhasil bayar
+            sendWhatsAppReceipt(order, true);
           },
           onPending: function (result: any) {
             alert("Menunggu pembayaran Anda!");
@@ -178,7 +192,7 @@ export default function KasirPOSPage() {
     const existingIndex = orderItems.findIndex((item) => item.serviceId === service.id);
     if (existingIndex > -1) {
       const updated = [...orderItems];
-      updated[existingIndex].quantity += quantityInput;
+      updated[existingIndex].quantity += 1;
       setOrderItems(updated);
     } else {
       setOrderItems([
@@ -188,16 +202,25 @@ export default function KasirPOSPage() {
           name: service.name,
           price: service.price,
           unit: service.unit,
-          quantity: quantityInput,
+          quantity: 1,
         },
       ]);
     }
-    setQuantityInput(1);
   };
 
   // Hapus item dari list
   const handleRemoveItem = (index: number) => {
     setOrderItems(orderItems.filter((_, i) => i !== index));
+  };
+
+  // Update Kuantitas di Keranjang
+  const handleUpdateQuantity = (index: number, delta: number) => {
+    const updated = [...orderItems];
+    const newQty = parseFloat((updated[index].quantity + delta).toFixed(1));
+    if (newQty >= 0.1) {
+      updated[index].quantity = newQty;
+      setOrderItems(updated);
+    }
   };
 
   // Hitung total harga real-time di frontend
@@ -234,7 +257,10 @@ export default function KasirPOSPage() {
 
         // Jika termin bayar PREPAID, otomatis buka pop-up Midtrans!
         if (paymentTerm === "PREPAID") {
-          handleMidtransPayment(data.order.id);
+          handleMidtransPayment(data.order);
+        } else {
+          // Jika POSTPAID, langsung kirim WA karena bayar nanti
+          sendWhatsAppReceipt(data.order, false);
         }
         
         setSelectedCustomer(null);
@@ -412,50 +438,29 @@ export default function KasirPOSPage() {
 
             {/* 2. LAYANAN GRID SECTION */}
             <section className="glass-panel rounded-2xl p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <h2 className="text-sm font-display font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                  <span className="w-1.5 h-3 rounded bg-brand-500"></span>
-                  2. Pilih Layanan & Kuantitas
-                </h2>
-
-                <input
-                  type="text"
-                  placeholder="Cari nama layanan..."
-                  value={serviceSearch}
-                  onChange={(e) => setServiceSearch(e.target.value)}
-                  className="px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 w-full sm:w-48 font-semibold"
-                />
-              </div>
-
-              <div className="flex items-center justify-between gap-4 mb-6 p-4 rounded-xl bg-slate-50 border border-slate-150">
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Kuantitas Input:</span>
-                  <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 w-fit shadow-sm">
-                    <button
-                      type="button"
-                      onClick={() => setQuantityInput((prev) => Math.max(0.1, parseFloat((prev - 1).toFixed(1))))}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer font-bold"
-                    >
-                      －
-                    </button>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0.1"
-                      value={quantityInput}
-                      onChange={(e) => setQuantityInput(parseFloat(e.target.value) || 1)}
-                      className="w-12 bg-transparent text-center text-sm font-black border-none focus:outline-none focus:ring-0 text-slate-800"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setQuantityInput((prev) => parseFloat((prev + 1).toFixed(1)))}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer font-bold"
-                    >
-                      ＋
-                    </button>
-                  </div>
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-sm font-display font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2 mb-2">
+                    <span className="w-1.5 h-3 rounded bg-brand-500"></span>
+                    2. Pilih Layanan
+                  </h2>
+                  <p className="text-[10px] text-slate-400 font-medium">Klik layanan di bawah untuk menambahkan ke keranjang</p>
                 </div>
-                <p className="text-xs text-slate-400 italic font-medium">Klik kartu layanan di bawah untuk menambahkan</p>
+
+                <div className="relative w-full sm:w-72 h-[46px]">
+                  <span className="absolute left-4 top-0 bottom-0 flex items-center justify-center text-slate-400 pointer-events-none">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Cari layanan..."
+                    value={serviceSearch}
+                    onChange={(e) => setServiceSearch(e.target.value)}
+                    className="w-full h-full pl-12 pr-4 rounded-xl bg-white border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition duration-200 font-semibold shadow-sm"
+                  />
+                </div>
               </div>
 
               {/* Service Cards Grid (Terang) */}
@@ -517,36 +522,57 @@ export default function KasirPOSPage() {
               {/* Receipt Cart List */}
               <div className="flex-1 space-y-3 mb-6 overflow-y-auto max-h-[260px] pr-1 no-scrollbar">
                 {orderItems.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-150 flex items-center justify-center text-slate-400">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  <div className="flex flex-col items-center justify-center py-16 text-center space-y-3 h-full opacity-60">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-300 mb-2 shadow-inner">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                     </div>
-                    <p className="text-slate-400 text-xs font-semibold italic">Keranjang kosong. Pilih layanan di kiri.</p>
+                    <p className="text-slate-500 text-sm font-semibold italic">Belum ada layanan terpilih</p>
+                    <p className="text-slate-400 text-xs">Silakan pilih dari daftar layanan di sebelah kiri.</p>
                   </div>
                 ) : (
                   orderItems.map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex justify-between items-center p-3.5 rounded-xl bg-slate-50 border border-slate-150 text-xs hover:border-slate-200 transition shadow-sm animate-fade-in-up"
+                      className="flex justify-between items-center p-3.5 rounded-xl bg-white border border-slate-200 text-xs hover:border-brand-300 hover:shadow-md transition-all duration-200 animate-fade-in-up"
                     >
-                      <div>
-                        <h4 className="font-extrabold text-slate-800 mb-0.5">{item.name}</h4>
-                        <p className="text-[10px] text-slate-400 font-bold font-mono">
-                          {item.quantity} {item.unit} x Rp {item.price.toLocaleString("id-ID")}
-                        </p>
+                      <div className="flex-1 pr-3">
+                        <h4 className="font-extrabold text-slate-800 mb-1">{item.name}</h4>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center bg-slate-50 border border-slate-200 rounded-lg overflow-hidden w-fit">
+                            <button
+                              onClick={() => handleUpdateQuantity(idx, -1)}
+                              className="w-6 h-6 flex items-center justify-center bg-white hover:bg-slate-100 text-slate-600 transition font-bold"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center text-[10px] font-bold text-brand-600">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateQuantity(idx, 1)}
+                              className="w-6 h-6 flex items-center justify-center bg-white hover:bg-slate-100 text-slate-600 transition font-bold"
+                            >
+                              +
+                            </button>
+                          </div>
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            {item.unit} x <span className="font-mono">Rp {item.price.toLocaleString("id-ID")}</span>
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-bold font-mono text-slate-800">
+                      <div className="flex flex-col items-end gap-1.5 border-l border-slate-100 pl-3">
+                        <span className="font-black font-mono text-brand-600 text-sm">
                           Rp {(item.price * item.quantity).toLocaleString("id-ID")}
                         </span>
                         <button
                           onClick={() => handleRemoveItem(idx)}
-                          className="w-6 h-6 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 flex items-center justify-center transition cursor-pointer text-[10px] font-bold"
+                          className="text-[10px] text-red-400 hover:text-red-600 font-bold flex items-center gap-0.5 transition"
                           title="Hapus"
                         >
-                          ✕
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                          Hapus
                         </button>
                       </div>
                     </div>
@@ -555,67 +581,72 @@ export default function KasirPOSPage() {
               </div>
 
               {/* Payment details & checkout */}
-              <div className="pt-5 border-t border-dashed border-slate-200 space-y-4">
+              <div className="pt-5 border-t-2 border-dashed border-slate-200 space-y-5">
                 
                 {/* Notes & Date */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Catatan Pesanan</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                      Catatan
+                    </label>
                     <textarea
-                      placeholder="Misal: Jangan pakai pemutih..."
+                      placeholder="Misal: Jangan pakai pewangi..."
                       value={orderNotes}
                       onChange={(e) => setOrderNotes(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 resize-none h-16"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 resize-none h-14 shadow-sm"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Estimasi Selesai</label>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      Estimasi Selesai
+                    </label>
                     <input
                       type="datetime-local"
                       value={estimatedCompletionDate}
                       onChange={(e) => setEstimatedCompletionDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-brand-500 h-10"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 h-14 shadow-sm"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center gap-4 pt-2">
-                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Metode Bayar</span>
-                  <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 w-fit">
-                    <button
-                      onClick={() => setPaymentTerm("PREPAID")}
-                      className={`px-4 py-2 rounded-lg text-xs font-extrabold transition cursor-pointer ${
-                        paymentTerm === "PREPAID"
-                          ? "bg-brand-600 text-white shadow-md shadow-brand-600/10"
-                          : "text-slate-500 hover:text-slate-700"
-                      }`}
-                    >
-                      LUNAS (Prepaid)
-                    </button>
-                    <button
-                      onClick={() => setPaymentTerm("POSTPAID")}
-                      className={`px-4 py-2 rounded-lg text-xs font-extrabold transition cursor-pointer ${
-                        paymentTerm === "POSTPAID"
-                          ? "bg-amber-500 text-white shadow-md shadow-amber-500/10"
-                          : "text-slate-500 hover:text-slate-700"
-                      }`}
-                    >
-                      NANTI (Postpaid)
-                    </button>
-                  </div>
-                </div>
-
                 {/* Struk pricing details */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-150 space-y-3 shadow-inner">
-                  <div className="flex justify-between text-[10px] font-bold">
-                    <span className="text-slate-400 uppercase">Status Pembayaran</span>
-                    <span className={`font-black uppercase tracking-wide ${paymentTerm === "PREPAID" ? "text-emerald-600" : "text-amber-600"}`}>
-                      {paymentTerm === "PREPAID" ? "Lunas (Paid)" : "Piutang (Unpaid)"}
-                    </span>
+                <div className="p-5 rounded-2xl bg-brand-50 border border-brand-200 space-y-4 shadow-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-extrabold text-brand-600 uppercase tracking-wider">Metode Bayar</span>
+                    <div className="flex bg-white p-1 rounded-xl border border-brand-100 shadow-sm">
+                      <button
+                        onClick={() => setPaymentTerm("PREPAID")}
+                        className={`px-4 py-1.5 rounded-lg text-[10px] font-extrabold transition cursor-pointer ${
+                          paymentTerm === "PREPAID"
+                            ? "bg-brand-600 text-white shadow-md shadow-brand-600/20"
+                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        LUNAS
+                      </button>
+                      <button
+                        onClick={() => setPaymentTerm("POSTPAID")}
+                        className={`px-4 py-1.5 rounded-lg text-[10px] font-extrabold transition cursor-pointer ${
+                          paymentTerm === "POSTPAID"
+                            ? "bg-amber-500 text-white shadow-md shadow-amber-500/20"
+                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        NANTI
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-end pt-2 border-t border-slate-200">
-                    <span className="text-xs text-slate-500 uppercase font-bold">Total Pembayaran</span>
-                    <span className="text-2xl font-black font-mono text-brand-600 tracking-tight">
+
+                  <div className="flex justify-between items-end pt-3 border-t border-brand-200/60">
+                    <div>
+                      <span className="text-[10px] text-brand-500/80 uppercase font-bold tracking-wider block mb-0.5">Total Tagihan</span>
+                      <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded inline-block ${paymentTerm === "PREPAID" ? "bg-emerald-100 text-emerald-700 border border-emerald-200" : "bg-amber-100 text-amber-700 border border-amber-200"}`}>
+                        {paymentTerm === "PREPAID" ? "SUDAH DIBAYAR" : "BELUM DIBAYAR"}
+                      </span>
+                    </div>
+                    <span className="text-3xl font-black font-mono text-brand-700 tracking-tight">
                       Rp {totalPrice.toLocaleString("id-ID")}
                     </span>
                   </div>
@@ -631,7 +662,7 @@ export default function KasirPOSPage() {
                 <button
                   onClick={handleSaveOrder}
                   disabled={submitting || !selectedCustomer || orderItems.length === 0}
-                  className="w-full py-4 bg-gradient-to-r from-brand-600 to-emerald-600 hover:from-brand-500 hover:to-emerald-500 disabled:from-slate-200 disabled:to-slate-200 disabled:opacity-30 disabled:cursor-not-allowed text-white font-extrabold rounded-xl text-sm transition duration-300 cursor-pointer shadow-lg shadow-brand-600/10 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-gradient-to-r from-brand-600 to-emerald-600 hover:from-brand-500 hover:to-emerald-500 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-extrabold rounded-xl text-sm transition-all duration-300 cursor-pointer shadow-xl shadow-brand-600/20 flex items-center justify-center gap-2 transform active:scale-[0.98]"
                 >
                   {submitting ? (
                     <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
@@ -686,7 +717,7 @@ export default function KasirPOSPage() {
 
             {successOrder.paymentTerm === "PREPAID" && (
               <button
-                onClick={() => handleMidtransPayment(successOrder.id)}
+                onClick={() => handleMidtransPayment(successOrder)}
                 disabled={midtransLoading}
                 className="w-full py-3.5 rounded-xl bg-[#00A1A2] hover:bg-[#008f90] text-white text-xs font-bold transition cursor-pointer border border-[#008f90] shadow-md flex justify-center items-center gap-2"
               >

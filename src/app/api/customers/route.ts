@@ -17,6 +17,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
 
+    const limit = searchParams.get("limit");
+
     const whereClause: any = {
       tenantId,
       OR: [
@@ -32,7 +34,7 @@ export async function GET(request: Request) {
     const customers = await prisma.customer.findMany({
       where: whereClause,
       orderBy: { name: "asc" },
-      take: 10, // Batasi 10 hasil saja untuk kecepatan POS
+      ...(limit !== "all" && { take: 10 }), // Batasi 10 hasil saja untuk kecepatan POS jika bukan 'all'
     });
 
     return NextResponse.json({ success: true, customers });
