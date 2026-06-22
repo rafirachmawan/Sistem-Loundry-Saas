@@ -11,6 +11,7 @@ export interface JWTPayload {
   name: string;
   role: "OWNER" | "KASIR" | "DEVELOPER";
   tenantId: string;
+  branchId?: string | null;
 }
 
 export async function signJWT(payload: JWTPayload): Promise<string> {

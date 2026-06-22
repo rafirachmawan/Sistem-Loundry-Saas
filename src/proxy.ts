@@ -84,6 +84,9 @@ export async function proxy(request: NextRequest) {
     requestHeaders.set("x-user-email", payload.email);
     requestHeaders.set("x-user-role", payload.role);
     requestHeaders.set("x-tenant-id", payload.tenantId);
+    if (payload.branchId) {
+      requestHeaders.set("x-branch-id", payload.branchId);
+    }
 
     return NextResponse.next({
       request: {

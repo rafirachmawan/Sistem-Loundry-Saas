@@ -53,6 +53,7 @@ model Branch {
   users          User[]
   orders         Order[]
   inventoryItems InventoryItem[]
+  customers      Customer[]
 }
 
 model Customer {
@@ -61,10 +62,12 @@ model Customer {
   phone     String
   address   String?
   tenantId  String
+  branchId  String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  branch    Branch?   @relation(fields: [branchId], references: [id])
   orders    Order[]
 }
 

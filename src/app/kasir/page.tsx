@@ -33,6 +33,7 @@ export default function KasirPOSPage() {
   const [searchResults, setSearchResults] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showRegForm, setShowRegForm] = useState(false);
+  const [isManualReg, setIsManualReg] = useState(false);
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newCustomerPhone, setNewCustomerPhone] = useState("");
   const [newCustomerAddress, setNewCustomerAddress] = useState("");
@@ -161,6 +162,7 @@ export default function KasirPOSPage() {
         setNewCustomerPhone("");
         setNewCustomerAddress("");
         setShowRegForm(false);
+        setIsManualReg(false);
       } else {
         setErrorMsg(data.message || "Gagal mendaftarkan pelanggan");
       }
@@ -312,22 +314,33 @@ export default function KasirPOSPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="relative">
-                    <span className="absolute left-4 top-3.5 text-slate-400">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <span className="absolute left-4 top-3.5 text-slate-400">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </span>
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Cari berdasarkan nama pelanggan atau nomor WhatsApp..."
+                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition duration-200 font-semibold shadow-sm"
+                      />
+                      {customerLoading && (
+                        <span className="absolute right-4 top-4.5 w-4 h-4 border-2 border-slate-200 border-t-brand-500 rounded-full animate-spin"></span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setIsManualReg(!isManualReg)}
+                      className="px-4 py-3.5 bg-brand-50 text-brand-600 font-bold text-sm rounded-xl border border-brand-200 hover:bg-brand-100 transition whitespace-nowrap cursor-pointer shadow-sm flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
-                    </span>
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Cari berdasarkan nama pelanggan atau nomor WhatsApp..."
-                      className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition duration-200 font-semibold shadow-sm"
-                    />
-                    {customerLoading && (
-                      <span className="absolute right-4 top-4.5 w-4 h-4 border-2 border-slate-200 border-t-brand-500 rounded-full animate-spin"></span>
-                    )}
+                      Baru
+                    </button>
                   </div>
 
                   {/* Autocomplete Dropdown */}
@@ -355,14 +368,14 @@ export default function KasirPOSPage() {
                   )}
 
                   {/* Inline Form Registrasi Pelanggan Baru */}
-                  {showRegForm && !customerLoading && (
+                  {(showRegForm || isManualReg) && !customerLoading && (
                     <form
                       onSubmit={handleRegisterCustomer}
                       className="p-5 rounded-xl border border-slate-150 bg-slate-50/50 space-y-4 animate-fade-in-up"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                        <p className="text-xs text-slate-500 font-semibold">Pelanggan tidak ditemukan. Daftarkan baru di bawah ini:</p>
+                        <span className="w-2 h-2 rounded-full bg-brand-500"></span>
+                        <p className="text-xs text-slate-500 font-semibold">Daftarkan pelanggan baru:</p>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input
@@ -382,13 +395,6 @@ export default function KasirPOSPage() {
                           className="px-4 py-3 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-500 font-semibold"
                         />
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Alamat Pelanggan (Opsional)..."
-                        value={newCustomerAddress}
-                        onChange={(e) => setNewCustomerAddress(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-500 font-semibold"
-                      />
                       <button
                         type="submit"
                         className="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 active:bg-brand-755 text-white text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer shadow-md shadow-brand-600/10 flex items-center gap-1.5"

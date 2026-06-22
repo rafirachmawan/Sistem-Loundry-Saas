@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: Request) {
   try {
     const tenantId = request.headers.get("x-tenant-id");
+    const branchId = request.headers.get("x-branch-id");
 
     if (!tenantId) {
       return NextResponse.json(
@@ -16,14 +17,20 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
 
+    const whereClause: any = {
+      tenantId,
+      OR: [
+        { name: { contains: search } },
+        { phone: { contains: search } },
+      ],
+    };
+
+    if (branchId) {
+      whereClause.branchId = branchId;
+    }
+
     const customers = await prisma.customer.findMany({
-      where: {
-        tenantId,
-        OR: [
-          { name: { contains: search } },
-          { phone: { contains: search } },
-        ],
-      },
+      where: whereClause,
       orderBy: { name: "asc" },
       take: 10, // Batasi 10 hasil saja untuk kecepatan POS
     });
@@ -42,6 +49,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const tenantId = request.headers.get("x-tenant-id");
+    const branchId = request.headers.get("x-branch-id");
 
     if (!tenantId) {
       return NextResponse.json(
@@ -63,21 +71,7 @@ export async function POST(request: Request) {
     // Bersihkan input nomor WA/Telepon (hanya ambil angka)
     const cleanPhone = phone.replace(/\D/g, "");
 
-    // Cek jika nomor WA sudah terdaftar untuk tenant yang sama
-    const existingCustomer = await prisma.customer.findFirst({
-      where: {
-        tenantId,
-        phone: cleanPhone,
-      },
-    });
-
-    if (existingCustomer) {
-      return NextResponse.json({
-        success: true,
-        message: "Pelanggan dengan nomor WhatsApp ini sudah terdaftar",
-        customer: existingCustomer,
-      });
-    }
+    // (Opsional) Cek nomor dihapus sesuai permintaan agar nomor WA bisa duplikat.
 
     // Buat pelanggan baru
     const customer = await prisma.customer.create({
@@ -86,6 +80,7 @@ export async function POST(request: Request) {
         phone: cleanPhone,
         address: address?.trim() || null,
         tenantId,
+        branchId: branchId || null,
       },
     });
 

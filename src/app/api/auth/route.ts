@@ -57,6 +57,7 @@ export async function POST(request: Request) {
       name: user.name,
       role: user.role as "OWNER" | "KASIR",
       tenantId: user.tenantId,
+      branchId: user.branchId,
     });
 
     // Set cookie menggunakan async cookies API Next.js 15+
