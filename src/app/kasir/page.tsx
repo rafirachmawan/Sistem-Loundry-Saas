@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import Sidebar from "../components/Sidebar";
 
 interface Customer {
   id: string;
@@ -256,16 +255,13 @@ export default function KasirPOSPage() {
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
+    <>
       {/* Midtrans Snap JS */}
       <Script 
         src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         strategy="lazyOnload"
       />
-
-      {/* Sidebar Navigation */}
-      <Sidebar />
 
       {/* Main content wrapper */}
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6">
@@ -711,6 +707,6 @@ export default function KasirPOSPage() {
         </div>
       )}
 
-    </div>
+    </>
   );
 }

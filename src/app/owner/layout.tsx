@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Sidebar from "../components/Sidebar";
 
 export const metadata: Metadata = {
-  title: "CPanel Developer - Spindo",
-  description: "Panel kontrol administrator sistem global Laundry SaaS Multi-Tenant.",
+  title: "Dashboard Owner - Spindo",
+  description: "Panel kontrol utama untuk pemilik bisnis laundry.",
 };
 
-export default function DeveloperLayout({
+export default function OwnerLayout({
   children,
 }: {
   children: React.ReactNode;

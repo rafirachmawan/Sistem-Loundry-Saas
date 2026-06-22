@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "../../components/Sidebar";
 
 interface Service {
   id: string;
@@ -170,10 +169,7 @@ export default function OwnerServicesPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      {/* Sidebar Navigation */}
-      <Sidebar />
-
+    <>
       {/* Main Content Area */}
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         
@@ -383,6 +379,6 @@ export default function OwnerServicesPage() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

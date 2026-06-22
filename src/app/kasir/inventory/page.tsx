@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Sidebar from "../../components/Sidebar";
 
 interface InventoryItem {
   id: string;
@@ -115,9 +114,7 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      <Sidebar />
-
+    <>
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         {/* Header */}
         <header className="border-b border-slate-200/80 bg-white/70 backdrop-blur-md px-6 py-5 flex items-center justify-between sticky top-0 z-20">
@@ -343,6 +340,6 @@ export default function InventoryPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

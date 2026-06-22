@@ -81,7 +81,7 @@ export default function LoginPage() {
             <div className="flex items-start mb-12 mt-4">
               <Link href="/" className="flex items-center">
                 <span className="text-3xl font-bold text-white tracking-tight">
-                  LondriOS
+                  Spindo
                 </span>
               </Link>
             </div>
@@ -138,7 +138,7 @@ export default function LoginPage() {
 
           {/* Footer Copy */}
           <span className="text-xs text-brand-200/40 font-medium">
-            © 2026 LondriOS Corporation. All rights reserved.
+            © 2026 Spindo Corporation. All rights reserved.
           </span>
         </div>
 

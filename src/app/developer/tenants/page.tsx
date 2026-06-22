@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
+import Link from "next/link";
 
 interface TenantStats {
   id: string;
@@ -235,7 +235,7 @@ export default function DeveloperTenantsPage() {
     const message = `Yth. Bapak/Ibu ${ten.ownerName || ""},
 Pemilik Outlet ${ten.name}
 
-Salam hangat dari LondriOS.
+Salam hangat dari Spindo.
 
 Kami ingin menginformasikan bahwa masa aktif layanan paket *${ten.tier}* untuk outlet laundry Anda akan segera berakhir pada tanggal *${expiryDateStr}*.
 
@@ -246,7 +246,7 @@ Jika Bapak/Ibu membutuhkan bantuan atau memiliki pertanyaan mengenai proses perp
 Terima kasih banyak atas kerja sama dan kepercayaan Anda menggunakan layanan kami.
 
 Hormat kami,
-*Customer Support LondriOS*`;
+*Customer Support Spindo*`;
 
     return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
   };
@@ -292,8 +292,7 @@ Hormat kami,
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      <Sidebar />
+    <>
 
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         {/* Header */}
@@ -341,7 +340,7 @@ Hormat kami,
 
             {loading ? (
               <div className="py-16 flex flex-col items-center justify-center space-y-3">
-                <span className="w-6 h-6 border-2 border-slate-200 border-t-purple-600 rounded-full animate-spin"></span>
+                <span className="w-6 h-6 border-2 border-slate-200 border-t-brand-500 rounded-full animate-spin"></span>
                 <p className="text-slate-400 text-xs font-semibold">Memuat log tenant...</p>
               </div>
             ) : (
@@ -374,7 +373,6 @@ Hormat kami,
                         <tr key={ten.id} className="hover:bg-slate-50/50 transition duration-150">
                           <td className="p-4">
                             <span className="block text-slate-800">{ten.name}</span>
-                            <span className="text-[10px] font-mono text-slate-400 block mt-0.5">{ten.id}</span>
                           </td>
                           <td className="p-4">
                             <span className="block text-slate-850">{ten.ownerName || "-"}</span>
@@ -707,7 +705,7 @@ Hormat kami,
               {/* Tabel User */}
               {loadingUsers ? (
                 <div className="py-12 flex flex-col items-center justify-center space-y-2">
-                  <span className="w-5 h-5 border-2 border-slate-200 border-t-purple-600 rounded-full animate-spin"></span>
+                  <span className="w-5 h-5 border-2 border-slate-200 border-t-brand-500 rounded-full animate-spin"></span>
                   <p className="text-slate-400 text-[10px] font-semibold">Memuat log user...</p>
                 </div>
               ) : (
@@ -849,6 +847,6 @@ Hormat kami,
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

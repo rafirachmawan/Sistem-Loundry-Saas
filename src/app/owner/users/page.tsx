@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
 import { useUserStore, User } from "@/store/useUserStore";
 
 export default function OwnerUsersPage() {
@@ -99,9 +98,7 @@ export default function OwnerUsersPage() {
   const isLimitReached = maxUsers !== -1 && users.length >= maxUsers;
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      <Sidebar />
-
+    <>
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         <header className="border-b border-slate-200/80 bg-white/70 backdrop-blur-md px-6 py-5 flex items-center justify-between sticky top-0 z-20">
           <div>
@@ -263,6 +260,6 @@ export default function OwnerUsersPage() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "../../components/Sidebar";
 
 export default function DeveloperOnboardPage() {
   const router = useRouter();
@@ -61,8 +60,7 @@ export default function DeveloperOnboardPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      <Sidebar />
+    <>
 
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         {/* Header */}
@@ -217,6 +215,6 @@ export default function DeveloperOnboardPage() {
           </div>
         </main>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
 
 interface Plan {
   id: string;
@@ -164,10 +163,7 @@ export default function BillingPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      {/* Sidebar Navigation */}
-      <Sidebar />
-
+    <>
       {/* Main Content Area */}
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         
@@ -207,7 +203,7 @@ export default function BillingPage() {
                   {plans.find((p) => p.id === activePlanId)?.name || "Masa Uji Coba Gratis (Free Trial)"}
                 </h2>
                 <p className="text-xs text-slate-400 font-semibold">
-                  Status: <span className="text-slate-700 font-bold">{subStatus === "TRIAL" ? "Free Trial" : "Berlangganan Aktif"}</span> | Akun Owner: <span className="text-slate-700">{user?.email || "owner@londrios.com"}</span>
+                  Status: <span className="text-slate-700 font-bold">{subStatus === "TRIAL" ? "Free Trial" : "Berlangganan Aktif"}</span> | Akun Owner: <span className="text-slate-700">{user?.email || "owner@spindo.com"}</span>
                 </p>
               </div>
 
@@ -426,6 +422,6 @@ export default function BillingPage() {
         </div>
       )}
 
-    </div>
+    </>
   );
 }

@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Sidebar from "../components/Sidebar";
 
 export const metadata: Metadata = {
-  title: "CPanel Developer - Spindo",
-  description: "Panel kontrol administrator sistem global Laundry SaaS Multi-Tenant.",
+  title: "Kasir POS - Spindo",
+  description: "Aplikasi kasir dan point of sale untuk bisnis laundry.",
 };
 
-export default function DeveloperLayout({
+export default function KasirLayout({
   children,
 }: {
   children: React.ReactNode;

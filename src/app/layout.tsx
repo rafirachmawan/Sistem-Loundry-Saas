@@ -15,7 +15,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "LondriOS - Sistem POS & Manajemen Laundry Multi-Tenant",
+  title: "Spindo - Sistem POS & Manajemen Laundry Multi-Tenant",
   description: "Aplikasi POS real-time, visual tracking status produksi, dan dasbor analitik laundry modern.",
 };
 

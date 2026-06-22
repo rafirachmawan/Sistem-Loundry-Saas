@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Sidebar from "../../components/Sidebar";
 
 interface TenantStats {
   id: string;
@@ -74,11 +73,7 @@ export default function DeveloperDashboardPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      {/* Sidebar Navigation */}
-      <Sidebar />
-
-      {/* Main Content Area */}
+    <>
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         {/* Header section (Light & Clean) */}
         <header className="border-b border-slate-200/85 bg-white/70 backdrop-blur-md px-6 py-5 flex items-center justify-between sticky top-0 z-20">
@@ -106,7 +101,7 @@ export default function DeveloperDashboardPage() {
 
           {loading || !stats ? (
             <div className="flex-1 min-h-[60vh] flex flex-col items-center justify-center space-y-3">
-              <span className="w-8 h-8 border-3 border-slate-200 border-t-purple-600 rounded-full animate-spin"></span>
+              <span className="w-8 h-8 border-3 border-slate-200 border-t-brand-500 rounded-full animate-spin"></span>
               <p className="text-slate-400 text-xs font-semibold">Mengambil metrik ringkasan platform...</p>
             </div>
           ) : (
@@ -283,6 +278,6 @@ export default function DeveloperDashboardPage() {
           )}
         </main>
       </div>
-    </div>
+    </>
   );
 }

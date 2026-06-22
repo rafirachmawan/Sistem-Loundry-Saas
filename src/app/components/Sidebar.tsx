@@ -196,9 +196,18 @@ export default function Sidebar() {
   return (
     <>
       {/* 🖥️ DESKTOP SIDEBAR (Terang) */}
-      <aside className="fixed top-0 left-0 h-screen max-h-screen w-64 bg-white border-r border-slate-200/80 flex flex-col hidden md:flex z-30">
+      <aside className="fixed top-0 left-0 h-screen max-h-screen w-64 bg-white border-r border-slate-200/80 flex flex-col hidden md:flex z-30 shadow-sm">
+        
+        {/* Brand Logo / Header */}
+        <div className="flex-shrink-0 px-6 py-5 border-b border-slate-100/60 flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-brand-800 text-white flex items-center justify-center font-bold text-lg shadow-sm">S</div>
+          <span className="text-xl font-display font-extrabold text-slate-800 tracking-tight">
+            Spindo
+          </span>
+        </div>
+
         {/* Navigation Links */}
-        <nav className="flex-1 min-h-0 overflow-y-auto px-4 py-6 space-y-1">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-4 py-6 space-y-1.5">
             {menuItems.map((item: any) => {
               const active = pathname === item.href;
               
@@ -211,7 +220,7 @@ export default function Sidebar() {
                       ? `Fitur ${item.name} hanya tersedia untuk Paket Enterprise. Silakan upgrade paket Anda di menu Billing & Langganan.`
                       : `Fitur ${item.name} tidak tersedia di paket Anda. Silakan upgrade paket Anda di menu Billing & Langganan.`
                     )}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 cursor-not-allowed bg-slate-50/50 hover:bg-slate-100/50 border border-transparent transition-all"
+                    className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-400 cursor-not-allowed bg-slate-50/50 hover:bg-slate-100/50 border border-transparent transition-all"
                   >
                     <span className="text-slate-400">
                       {item.icon}
@@ -228,10 +237,10 @@ export default function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group ${
                     active
-                      ? "bg-brand-50 text-brand-700 border border-brand-200/50"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 border border-transparent"
+                      ? "bg-brand-50 text-brand-700 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
                   }`}
                 >
                   <span className={`transition-colors duration-200 ${active ? "text-brand-600" : "text-slate-400 group-hover:text-slate-600"}`}>

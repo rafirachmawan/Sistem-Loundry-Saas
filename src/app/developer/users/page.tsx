@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
 
 interface UserDetails {
   id: string;
@@ -126,8 +125,7 @@ export default function DeveloperUsersPage() {
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      <Sidebar />
+    <>
 
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         {/* Header */}
@@ -175,7 +173,7 @@ export default function DeveloperUsersPage() {
 
             {loading ? (
               <div className="py-16 flex flex-col items-center justify-center space-y-3">
-                <span className="w-6 h-6 border-2 border-slate-200 border-t-purple-600 rounded-full animate-spin"></span>
+                <span className="w-6 h-6 border-2 border-slate-200 border-t-brand-500 rounded-full animate-spin"></span>
                 <p className="text-slate-400 text-xs font-semibold">Memuat log pengguna...</p>
               </div>
             ) : (
@@ -276,7 +274,8 @@ export default function DeveloperUsersPage() {
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Minimal 6 karakter"
+                  placeholder="Minimal 3 karakter"
+                  minLength={3}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-purple-500 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none transition duration-200 font-semibold"
                 />
               </div>
@@ -305,6 +304,6 @@ export default function DeveloperUsersPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

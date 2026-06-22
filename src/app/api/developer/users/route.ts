@@ -104,9 +104,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (password.length < 6) {
+    if (password.length < 3) {
       return NextResponse.json(
-        { success: false, message: "Kata sandi minimal harus 6 karakter." },
+        { success: false, message: "Kata sandi minimal harus 3 karakter." },
         { status: 400 }
       );
     }
@@ -287,9 +287,9 @@ export async function PUT(request: Request) {
     if (phone !== undefined) updateData.phone = phone || null;
 
     if (newPassword !== undefined && newPassword !== "") {
-      if (newPassword.length < 6) {
+      if (newPassword.length < 3) {
         return NextResponse.json(
-          { success: false, message: "Kata sandi minimal harus 6 karakter." },
+          { success: false, message: "Kata sandi minimal harus 3 karakter." },
           { status: 400 }
         );
       }

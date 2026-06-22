@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const targetDirs = ['src', 'public'];
+const targetDirs = ['src', 'public', 'backend/src', 'prisma', 'backend/prisma'];
 
 function walk(dir) {
   let results = [];
@@ -26,19 +26,23 @@ targetDirs.forEach(dir => {
     filesToProcess = filesToProcess.concat(walk(dir));
   }
 });
-// also check layout in root if any, but it's in src/app
+// Also include root level configuration and document files
+const rootFiles = ['package.json', 'README.md', 'replace_name.js'];
+rootFiles.forEach(file => {
+  if (fs.existsSync(file)) {
+    filesToProcess.push(file);
+  }
+});
 
 filesToProcess.forEach(file => {
   let content = fs.readFileSync(file, 'utf8');
   let original = content;
   
   // Replace various casing
-  content = content.replace(/LaundrSaaS/g, 'Spindo');
-  content = content.replace(/LoundrySaas/ig, 'Spindo');
-  content = content.replace(/laundrySaas/ig, 'Spindo');
-  content = content.replace(/laundrsaas/ig, 'spindo');
-  content = content.replace(/Laundr<span className="text-brand-300">SaaS<\/span>/g, 'Spin<span className="text-brand-300">do</span>');
-  content = content.replace(/Laundr<span className="text-brand-600">SaaS<\/span>/g, 'Spin<span className="text-brand-600">do</span>');
+  content = content.replace(/LondriOS/g, 'Spindo');
+  content = content.replace(/londrios/g, 'spindo');
+  content = content.replace(/Londri<span className="text-brand-300">OS<\/span>/g, 'Spin<span className="text-brand-300">do<\/span>');
+  content = content.replace(/Londri<span className="text-brand-600">OS<\/span>/g, 'Spin<span className="text-brand-600">do<\/span>');
   
   if (content !== original) {
     fs.writeFileSync(file, content, 'utf8');

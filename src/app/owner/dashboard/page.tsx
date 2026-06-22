@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "../../components/Sidebar";
 
 interface UnpaidAlert {
   id: string;
@@ -106,7 +105,7 @@ export default function OwnerDashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           target: phone,
-          message: "Halo! Ini adalah pesan TEST dari Sistem LondriOS. WhatsApp Gateway Lokal Anda sudah berfungsi dengan sangat baik! 🎉"
+          message: "Halo! Ini adalah pesan TEST dari Sistem Spindo. WhatsApp Gateway Lokal Anda sudah berfungsi dengan sangat baik! 🎉"
         }),
       });
       const data = await res.json();
@@ -134,11 +133,7 @@ export default function OwnerDashboardPage() {
     : 10;
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      {/* Sidebar Navigation */}
-      <Sidebar />
-
-      {/* Main Content Area */}
+    <>
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         
         {/* Header section */}
@@ -429,6 +424,6 @@ export default function OwnerDashboardPage() {
           )}
         </main>
       </div>
-    </div>
+    </>
   );
 }

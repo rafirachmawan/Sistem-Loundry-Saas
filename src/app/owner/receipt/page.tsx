@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
 
 export default function ReceiptCustomizationPage() {
   const [loading, setLoading] = useState(true);
   const [activePlanId, setActivePlanId] = useState<string>("trial");
   
   // Settings State
-  const [headerText, setHeaderText] = useState("Terima kasih telah mencuci di LondriOS!");
+  const [headerText, setHeaderText] = useState("Terima kasih telah mencuci di Spindo!");
   const [footerText, setFooterText] = useState("Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami.");
   const [useCustomLogo, setUseCustomLogo] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -33,8 +32,8 @@ export default function ReceiptCustomizationPage() {
         setActivePlanId(currentPlan);
 
         if (currentPlan !== "enterprise") {
-          setHeaderText("Terima kasih telah mencuci di LondriOS!");
-          setFooterText("Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami. Cek riwayat laundry Anda melalui aplikasi LondriOS.");
+          setHeaderText("Terima kasih telah mencuci di Spindo!");
+          setFooterText("Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami. Cek riwayat laundry Anda melalui aplikasi Spindo.");
         }
         
         // Mock loading data
@@ -62,9 +61,7 @@ export default function ReceiptCustomizationPage() {
   const isEnterprise = activePlanId === "enterprise";
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-800 font-sans">
-      <Sidebar />
-
+    <>
       <div className="flex-1 md:pl-64 flex flex-col pb-24 md:pb-6 animate-fade-in-up">
         {/* Header */}
         <header className="border-b border-slate-200/80 bg-white/70 backdrop-blur-md px-6 py-5 flex items-center justify-between sticky top-0 z-20">
@@ -226,7 +223,7 @@ export default function ReceiptCustomizationPage() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">👤</div>
                     <div>
-                      <h4 className="text-sm font-bold leading-tight">LondriOS</h4>
+                      <h4 className="text-sm font-bold leading-tight">Spindo</h4>
                       <p className="text-[10px] opacity-80">Akun Bisnis</p>
                     </div>
                   </div>
@@ -275,6 +272,6 @@ export default function ReceiptCustomizationPage() {
           )}
         </main>
       </div>
-    </div>
+    </>
   );
 }

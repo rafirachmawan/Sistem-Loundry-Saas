@@ -70,7 +70,7 @@ export default function RegisterPage() {
             <div className="flex items-start mb-12 mt-4">
               <Link href="/" className="flex items-center">
                 <span className="text-3xl font-bold text-white tracking-tight">
-                  LondriOS
+                  Spindo
                 </span>
               </Link>
             </div>
@@ -116,7 +116,7 @@ export default function RegisterPage() {
 
           {/* Footer Copy */}
           <span className="text-xs text-brand-200/40 font-medium">
-            © 2026 LondriOS Corporation. All rights reserved.
+            © 2026 Spindo Corporation. All rights reserved.
           </span>
         </div>
 
@@ -408,9 +408,9 @@ export default function RegisterPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimal 6 karakter..."
+                  placeholder="Minimal 3 karakter..."
                   required
-                  minLength={6}
+                  minLength={3}
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:bg-white transition duration-200 font-semibold"
                 />
               </div>

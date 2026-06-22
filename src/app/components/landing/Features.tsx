@@ -15,7 +15,7 @@ export default function Features() {
             Didesain Khusus untuk Bisnis Laundry Anda
           </p>
           <p className="text-slate-600 text-base sm:text-lg">
-            Klik menu di bawah ini untuk melihat bagaimana LondriOS mempercepat pekerjaan harian kasir dan membantu owner menganalisis performa bisnis.
+            Klik menu di bawah ini untuk melihat bagaimana Spindo mempercepat pekerjaan harian kasir dan membantu owner menganalisis performa bisnis.
           </p>
         </div>
 
@@ -192,7 +192,7 @@ export default function Features() {
                   <div className="bg-white p-2.5 rounded-lg max-w-[85%] shadow-sm relative text-[10px] text-slate-800 animate-fade-in-up">
                     <p className="font-semibold text-brand-700 mb-1">Halo Kak Budi Santoso!</p>
                     <p>Pakaian Anda dengan order <strong>#ORD-089</strong> telah selesai dicuci, disetrika, dan dikemas rapi. Siap untuk diambil di outlet.</p>
-                    <p className="mt-1 text-slate-500">Detail Nota: <span className="text-blue-600 underline">londrios.com/nota/89</span></p>
+                    <p className="mt-1 text-slate-500">Detail Nota: <span className="text-blue-600 underline">spindo.com/nota/89</span></p>
                     <p className="mt-2 text-slate-600 font-medium">Terima kasih atas kepercayaannya 🙏</p>
                     <span className="block text-right text-[7px] text-slate-400 mt-1">10:42 AM ✔✔</span>
                   </div>

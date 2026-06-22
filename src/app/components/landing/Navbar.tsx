@@ -11,7 +11,7 @@ export default function Navbar() {
       <nav className="mx-auto max-w-7xl glass-panel rounded-2xl px-6 py-4 flex items-center justify-between transition-all duration-300">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <span className="text-2xl font-bold text-brand-600 tracking-tight">LondriOS</span>
+          <span className="text-2xl font-bold text-brand-600 tracking-tight">Spindo</span>
         </Link>
 
         {/* Desktop Navigation */}

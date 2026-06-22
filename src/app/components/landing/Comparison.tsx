@@ -6,7 +6,7 @@ export default function Comparison() {
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <h2 className="text-sm font-bold tracking-widest text-brand-600 uppercase">Perbandingan Jujur</h2>
           <p className="text-3xl sm:text-4xl font-display font-extrabold text-slate-900 tracking-tight">
-            Mengapa Memilih LondriOS?
+            Mengapa Memilih Spindo?
           </p>
           <p className="text-slate-600 text-sm sm:text-base">
             Kami menyajikan kelebihan dan batasan sistem kami secara terbuka agar Anda dapat mengambil keputusan bisnis yang paling tepat.
