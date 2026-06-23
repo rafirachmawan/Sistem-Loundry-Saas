@@ -19,7 +19,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status, paymentStatus } = body;
+    const { status, paymentStatus, paymentMethod } = body;
 
     // Ambil detail order saat ini
     const order = await prisma.order.findUnique({
@@ -66,7 +66,7 @@ export async function PATCH(
         updateData.payments = {
           create: {
             amount: order.totalPrice,
-            paymentMethod: "CASH",
+            paymentMethod: paymentMethod || "CASH",
             userId: userId,
           }
         };

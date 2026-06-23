@@ -61,13 +61,30 @@ export default function KasirPOSPage() {
   const [cashGiven, setCashGiven] = useState<string>("");
 
   // Helper Kirim WhatsApp
-  const sendWhatsAppReceipt = (order: any, isPaid: boolean = false) => {
+  const sendWhatsAppReceipt = (order: any, isPaid: boolean = false, cashAmount?: number) => {
     if (!order || !order.customer || !order.customer.phone) return;
     let phone = order.customer.phone;
     if (phone.startsWith("0")) phone = "62" + phone.slice(1);
     
     const statusText = isPaid ? "*LUNAS*" : "*BELUM LUNAS*";
-    const message = `Halo ${order.customer.name},%0ATransaksi Loundry Anda (Invoice: ${order.invoiceNumber}) telah dicatat.%0A%0AStatus Pembayaran: ${statusText}%0ATotal Tagihan: Rp ${order.totalPrice.toLocaleString("id-ID")}%0A%0ATerima kasih telah mempercayakan pakaian Anda pada kami!`;
+    
+    let itemsText = "";
+    if (order.items && order.items.length > 0) {
+      itemsText = "%0A%0A*Detail Pesanan:*%0A";
+      order.items.forEach((item: any) => {
+        const itemName = item.service?.name || item.name || "Layanan";
+        const itemPrice = item.priceSnap || item.price || 0;
+        const subTotal = item.quantity * itemPrice;
+        itemsText += `- ${item.quantity}x ${itemName} (Rp ${subTotal.toLocaleString("id-ID")})%0A`;
+      });
+    }
+
+    let paymentDetails = "";
+    if (isPaid && cashAmount && cashAmount >= order.totalPrice) {
+      paymentDetails = `%0A%0A*Pembayaran Tunai:*%0AUang Diterima: Rp ${cashAmount.toLocaleString("id-ID")}%0AKembalian: Rp ${(cashAmount - order.totalPrice).toLocaleString("id-ID")}`;
+    }
+
+    const message = `Halo ${order.customer.name},%0ATransaksi Loundry Anda (Invoice: *${order.invoiceNumber}*) telah dicatat.%0A%0AStatus Pembayaran: ${statusText}%0ATotal Tagihan: *Rp ${order.totalPrice.toLocaleString("id-ID")}*${paymentDetails}${itemsText}%0A%0ATerima kasih telah mempercayakan pakaian Anda pada kami!`;
     
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
@@ -282,8 +299,9 @@ export default function KasirPOSPage() {
             // Jangan setSuccessOrder dulu, tunggu Midtrans berhasil
             handleMidtransPayment(data.order);
           } else if (paymentMethodOverride === "CASH") {
-            setSuccessOrder(data.order);
-            sendWhatsAppReceipt(data.order, true);
+            const parsedCash = parseFloat(cashGiven || "0");
+            setSuccessOrder({ ...data.order, cashAmount: parsedCash });
+            sendWhatsAppReceipt(data.order, true, parsedCash);
             clearCart();
           }
         } else {
@@ -710,7 +728,7 @@ export default function KasirPOSPage() {
       {/* 🟢 PAYMENT MODAL */}
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl relative overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl relative overflow-y-auto max-h-[90vh] no-scrollbar">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-500 to-emerald-500"></div>
             
             <div className="flex justify-between items-center mb-6">
@@ -790,7 +808,7 @@ export default function KasirPOSPage() {
                 <button
                   onClick={() => handleSaveOrder("CASH")}
                   disabled={submitting || parseFloat(cashGiven || "0") < totalPrice}
-                  className="w-full py-4 mt-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 text-white font-extrabold rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-600/20 flex justify-center items-center gap-2 transform active:scale-[0.98]"
+                  className="w-full py-4 mt-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-extrabold rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-600/20 flex justify-center items-center gap-2 transform active:scale-[0.98]"
                 >
                   {submitting ? (
                     <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
@@ -858,7 +876,20 @@ export default function KasirPOSPage() {
                 <span className="text-brand-600 font-mono text-sm">Rp {successOrder.totalPrice.toLocaleString("id-ID")}</span>
               </div>
               
-              <div className="border-t border-slate-200 pt-2 space-y-1">
+              {successOrder.cashAmount && successOrder.cashAmount >= successOrder.totalPrice && (
+                <>
+                  <div className="flex justify-between font-medium text-xs pt-1">
+                    <span className="text-slate-400">Tunai Diterima:</span>
+                    <span className="text-slate-600 font-mono">Rp {successOrder.cashAmount.toLocaleString("id-ID")}</span>
+                  </div>
+                  <div className="flex justify-between font-medium text-xs pt-1">
+                    <span className="text-slate-400">Kembalian:</span>
+                    <span className="text-emerald-600 font-mono">Rp {(successOrder.cashAmount - successOrder.totalPrice).toLocaleString("id-ID")}</span>
+                  </div>
+                </>
+              )}
+
+              <div className="border-t border-slate-200 pt-2 space-y-1 mt-2">
                 <span className="text-slate-400 font-semibold mb-1 block">Detail Pesanan:</span>
                 <ul className="text-slate-700 font-medium space-y-1">
                   {successOrder.items?.map((item: any, idx: number) => (
