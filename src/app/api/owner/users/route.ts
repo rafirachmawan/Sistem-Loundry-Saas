@@ -81,7 +81,7 @@ export async function POST(request: Request) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { success: false, message: validationResult.error.errors[0].message },
+        { success: false, message: validationResult.error.issues[0]?.message || "Validasi gagal" },
         { status: 400 }
       );
     }
