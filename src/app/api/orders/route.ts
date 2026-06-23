@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { customerId, paymentTerm, items, notes, estimatedCompletionDate } = body;
+    const { customerId, paymentTerm, items, notes, estimatedCompletionDate, paymentMethod } = body;
 
     // Validasi parameter wajib
     if (!customerId || !paymentTerm || !items || !Array.isArray(items) || items.length === 0) {
@@ -178,9 +178,8 @@ export async function POST(request: Request) {
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
     const invoiceNumber = `INV-${dateStr}-${randomSuffix}`;
 
-    // Secara default, semua transaksi masuk sebagai UNPAID.
-    // Jika menggunakan Midtrans, webhook yang akan mengubahnya menjadi PAID.
-    const paymentStatus = "UNPAID";
+    // Tentukan paymentStatus. Jika CASH, langsung PAID.
+    const paymentStatus = paymentMethod === "CASH" ? "PAID" : "UNPAID";
 
     // Simpan data order secara atomic dalam database
     const newOrder = await prisma.order.create({
@@ -199,6 +198,15 @@ export async function POST(request: Request) {
         items: {
           create: orderItemsToCreate,
         },
+        ...(paymentMethod === "CASH" ? {
+          payments: {
+            create: [{
+              amount: totalPrice,
+              paymentMethod: "CASH",
+              userId: userId,
+            }]
+          }
+        } : {})
       },
       include: {
         customer: true,

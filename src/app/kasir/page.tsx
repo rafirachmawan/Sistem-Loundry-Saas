@@ -55,6 +55,11 @@ export default function KasirPOSPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [midtransLoading, setMidtransLoading] = useState(false);
 
+  // Modal Pembayaran States
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethodTab, setPaymentMethodTab] = useState<"CASH" | "QRIS">("CASH");
+  const [cashGiven, setCashGiven] = useState<string>("");
+
   // Helper Kirim WhatsApp
   const sendWhatsAppReceipt = (order: any, isPaid: boolean = false) => {
     if (!order || !order.customer || !order.customer.phone) return;
@@ -83,18 +88,21 @@ export default function KasirPOSPage() {
         (window as any).snap.pay(data.token, {
           onSuccess: async function (result: any) {
             alert("Pembayaran berhasil!");
-            setSuccessOrder((prev: any) => ({ ...prev, paymentStatus: "PAID" }));
+            setSuccessOrder({ ...order, paymentStatus: "PAID" });
             // Otomatis kirim nota WA setelah berhasil bayar
             sendWhatsAppReceipt(order, true);
+            clearCart();
           },
           onPending: function (result: any) {
             alert("Menunggu pembayaran Anda!");
+            setShowPaymentModal(true);
           },
           onError: function (result: any) {
             alert("Pembayaran gagal!");
+            setShowPaymentModal(true);
           },
           onClose: function () {
-            // alert("Anda menutup popup sebelum menyelesaikan pembayaran");
+            setShowPaymentModal(true);
           },
         });
       } else {
@@ -226,8 +234,19 @@ export default function KasirPOSPage() {
   // Hitung total harga real-time di frontend
   const totalPrice = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  // Helper untuk membersihkan keranjang setelah sukses
+  const clearCart = () => {
+    setSelectedCustomer(null);
+    setOrderItems([]);
+    setSearchQuery("");
+    setOrderNotes("");
+    setEstimatedCompletionDate("");
+    setCashGiven("");
+    setPaymentMethodTab("CASH");
+  };
+
   // Simpan Transaksi (POST Order)
-  const handleSaveOrder = async () => {
+  const handleSaveOrder = async (paymentMethodOverride?: "CASH" | "QRIS") => {
     if (!selectedCustomer || orderItems.length === 0) return;
     setSubmitting(true);
     setErrorMsg("");
@@ -235,6 +254,7 @@ export default function KasirPOSPage() {
     const payload = {
       customerId: selectedCustomer.id,
       paymentTerm,
+      paymentMethod: paymentMethodOverride || null,
       notes: orderNotes,
       estimatedCompletionDate: estimatedCompletionDate || null,
       items: orderItems.map((item) => ({
@@ -252,22 +272,26 @@ export default function KasirPOSPage() {
       const data = await res.json();
 
       if (data.success) {
-        setSuccessOrder(data.order);
         setSubmitting(false);
 
-        // Jika termin bayar PREPAID, otomatis buka pop-up Midtrans!
+        // Tutup modal pembayaran jika terbuka
+        setShowPaymentModal(false);
+
         if (paymentTerm === "PREPAID") {
-          handleMidtransPayment(data.order);
+          if (paymentMethodOverride === "QRIS") {
+            // Jangan setSuccessOrder dulu, tunggu Midtrans berhasil
+            handleMidtransPayment(data.order);
+          } else if (paymentMethodOverride === "CASH") {
+            setSuccessOrder(data.order);
+            sendWhatsAppReceipt(data.order, true);
+            clearCart();
+          }
         } else {
           // Jika POSTPAID, langsung kirim WA karena bayar nanti
+          setSuccessOrder(data.order);
           sendWhatsAppReceipt(data.order, false);
+          clearCart();
         }
-        
-        setSelectedCustomer(null);
-        setOrderItems([]);
-        setSearchQuery("");
-        setOrderNotes("");
-        setEstimatedCompletionDate("");
       } else {
         setErrorMsg(data.message || "Gagal menyimpan transaksi");
       }
@@ -660,7 +684,7 @@ export default function KasirPOSPage() {
 
                 {/* Checkout Trigger */}
                 <button
-                  onClick={handleSaveOrder}
+                  onClick={() => paymentTerm === "PREPAID" ? setShowPaymentModal(true) : handleSaveOrder()}
                   disabled={submitting || !selectedCustomer || orderItems.length === 0}
                   className="w-full py-4 bg-gradient-to-r from-brand-600 to-emerald-600 hover:from-brand-500 hover:to-emerald-500 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-extrabold rounded-xl text-sm transition-all duration-300 cursor-pointer shadow-xl shadow-brand-600/20 flex items-center justify-center gap-2 transform active:scale-[0.98]"
                 >
@@ -671,7 +695,7 @@ export default function KasirPOSPage() {
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Simpan Order & Kirim Nota WA
+                      {paymentTerm === "PREPAID" ? "Bayar" : "Simpan Order (Bayar Nanti)"}
                     </>
                   )}
                 </button>
@@ -683,6 +707,127 @@ export default function KasirPOSPage() {
         </main>
       </div>
 
+      {/* 🟢 PAYMENT MODAL */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-500 to-emerald-500"></div>
+            
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-display font-extrabold text-slate-800">Pilih Pembayaran</h3>
+              <button onClick={() => setShowPaymentModal(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            {/* Rincian Pesanan */}
+            <div className="mb-6 p-4 bg-slate-50 border border-slate-100 rounded-xl">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Detail Pesanan</h4>
+              <div className="max-h-[140px] overflow-y-auto pr-2 space-y-3 no-scrollbar">
+                {orderItems.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-start text-sm border-b border-slate-200/50 pb-3 last:border-0 last:pb-0">
+                    <div>
+                      <p className="font-bold text-slate-700">{item.quantity}x {item.name}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">@ Rp {item.price.toLocaleString("id-ID")}</p>
+                    </div>
+                    <span className="font-mono font-bold text-slate-600">
+                      Rp {(item.quantity * item.price).toLocaleString("id-ID")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Total Display */}
+            <div className="p-4 bg-brand-50 rounded-xl border border-brand-100 mb-6 flex justify-between items-center shadow-sm">
+              <span className="text-xs font-bold text-brand-600 uppercase tracking-wider">Total Tagihan</span>
+              <span className="text-2xl font-black font-mono text-brand-700 tracking-tight">Rp {totalPrice.toLocaleString("id-ID")}</span>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex bg-slate-100 p-1 rounded-xl mb-6 border border-slate-200 shadow-inner">
+              <button
+                onClick={() => setPaymentMethodTab("CASH")}
+                className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${paymentMethodTab === "CASH" ? "bg-white text-slate-800 shadow-sm border border-slate-200/60" : "text-slate-500 hover:text-slate-700"}`}
+              >
+                Tunai (Cash)
+              </button>
+              <button
+                onClick={() => setPaymentMethodTab("QRIS")}
+                className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${paymentMethodTab === "QRIS" ? "bg-white text-[#00A1A2] shadow-sm border border-[#00A1A2]/20" : "text-slate-500 hover:text-slate-700"}`}
+              >
+                QRIS / Midtrans
+              </button>
+            </div>
+
+            {/* Content Cash */}
+            {paymentMethodTab === "CASH" && (
+              <div className="space-y-4 animate-fade-in-up">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Uang Diterima (Rp)</label>
+                  <input
+                    type="number"
+                    value={cashGiven}
+                    onChange={(e) => setCashGiven(e.target.value)}
+                    placeholder="Masukkan nominal uang tunai..."
+                    className="w-full p-3.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none font-mono font-bold text-slate-800 text-lg shadow-sm transition-all"
+                  />
+                </div>
+
+                {parseFloat(cashGiven || "0") >= totalPrice && (
+                  <div className="flex justify-between items-center p-4 bg-emerald-50 rounded-xl border border-emerald-100 shadow-sm">
+                    <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Kembalian:</span>
+                    <span className="text-xl font-black font-mono text-emerald-700">
+                      Rp {(parseFloat(cashGiven || "0") - totalPrice).toLocaleString("id-ID")}
+                    </span>
+                  </div>
+                )}
+                
+                {parseFloat(cashGiven || "0") > 0 && parseFloat(cashGiven || "0") < totalPrice && (
+                  <p className="text-xs text-red-500 font-bold italic text-center">Uang tidak cukup!</p>
+                )}
+
+                <button
+                  onClick={() => handleSaveOrder("CASH")}
+                  disabled={submitting || parseFloat(cashGiven || "0") < totalPrice}
+                  className="w-full py-4 mt-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 text-white font-extrabold rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-600/20 flex justify-center items-center gap-2 transform active:scale-[0.98]"
+                >
+                  {submitting ? (
+                    <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                      Konfirmasi & Simpan
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Content QRIS */}
+            {paymentMethodTab === "QRIS" && (
+              <div className="space-y-4 animate-fade-in-up text-center py-4">
+                <div className="w-16 h-16 mx-auto bg-brand-50 rounded-full flex items-center justify-center text-brand-600 mb-2 shadow-inner border border-brand-100">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+                </div>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">Pembayaran akan dilanjutkan melalui secure payment gateway Midtrans (QRIS/E-Wallet).</p>
+                <button
+                  onClick={() => handleSaveOrder("QRIS")}
+                  disabled={submitting}
+                  className="w-full py-4 mt-2 bg-[#00A1A2] hover:bg-[#008f90] text-white font-extrabold rounded-xl transition-all cursor-pointer shadow-lg shadow-[#00A1A2]/20 flex justify-center items-center gap-2 transform active:scale-[0.98]"
+                >
+                  {submitting ? (
+                    <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                  ) : (
+                    "Buat Transaksi QRIS"
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 🟢 SUCCESS DIALOG MODAL */}
       {successOrder && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
@@ -691,7 +836,9 @@ export default function KasirPOSPage() {
               ✓
             </div>
             <div>
-              <h3 className="text-xl font-display font-black text-slate-800">Transaksi Berhasil</h3>
+              <h3 className="text-xl font-display font-black text-slate-800">
+                {successOrder.paymentStatus === "PAID" ? "Pembayaran Berhasil" : "Order Disimpan"}
+              </h3>
               <p className="text-xs text-slate-400 font-mono mt-1">Invoice: {successOrder.invoiceNumber}</p>
             </div>
             
@@ -710,12 +857,27 @@ export default function KasirPOSPage() {
                 <span className="text-slate-400">Total Tagihan:</span>
                 <span className="text-brand-600 font-mono text-sm">Rp {successOrder.totalPrice.toLocaleString("id-ID")}</span>
               </div>
+              
+              <div className="border-t border-slate-200 pt-2 space-y-1">
+                <span className="text-slate-400 font-semibold mb-1 block">Detail Pesanan:</span>
+                <ul className="text-slate-700 font-medium space-y-1">
+                  {successOrder.items?.map((item: any, idx: number) => (
+                    <li key={idx} className="flex justify-between items-start">
+                      <span>{item.quantity}x {item.service?.name}</span>
+                      <span className="font-mono text-[10px] text-slate-500 mt-0.5">
+                        Rp {(item.quantity * item.priceSnap).toLocaleString("id-ID")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
               <p className="text-[10px] text-slate-400 italic border-t border-slate-200 pt-2 leading-relaxed">
                 Notifikasi ringkasan nota digital telah dikirim via antrean WhatsApp Gateway latar belakang (cek terminal log backend untuk mock output).
               </p>
             </div>
 
-            {successOrder.paymentTerm === "PREPAID" && (
+            {successOrder.paymentTerm === "PREPAID" && successOrder.paymentStatus !== "PAID" && (
               <button
                 onClick={() => handleMidtransPayment(successOrder)}
                 disabled={midtransLoading}
