@@ -1,21 +1,21 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { prisma } from "../src/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const adapter = new PrismaBetterSqlite3({
-  url: "file:./dev.db",
-});
-const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("Memulai seeding data...");
 
   // Hapus data lama agar bersih
+  await prisma.payment.deleteMany();
+  await prisma.orderStatusHistory.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
+  await prisma.stockMovement.deleteMany();
+  await prisma.inventoryItem.deleteMany();
+  await prisma.auditLog.deleteMany();
   await prisma.customer.deleteMany();
   await prisma.service.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.branch.deleteMany();
   await prisma.tenant.deleteMany();
 
   // Hash password default

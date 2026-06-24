@@ -136,7 +136,6 @@ export async function POST(request: Request) {
           name: ownerName.trim(),
           email: ownerEmail.toLowerCase().trim(),
           password: hashedPassword,
-          plainPassword: ownerPassword,
           phone: ownerPhone,
           role: "OWNER",
           tenantId: tenant.id,
