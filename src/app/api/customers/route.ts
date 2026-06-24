@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const whereClause: any = {
       tenantId,
       OR: [
-        { name: { contains: search } },
+        { name: { contains: search, mode: "insensitive" } },
         { phone: { contains: search } },
       ],
     };

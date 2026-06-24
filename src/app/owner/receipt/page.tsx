@@ -21,6 +21,8 @@ export default function ReceiptCustomizationPage() {
         let currentPlan = "trial";
         if (parsed.tenantTier) {
           currentPlan = parsed.tenantTier === "STARTER" ? "trial" : parsed.tenantTier.toLowerCase();
+        } else if (parsed.email === "prolaundry@gmail.com" || parsed.name?.toLowerCase() === "pro") {
+          currentPlan = "pro";
         }
         
         const savedSub = localStorage.getItem(`sub_${parsed.email}`);
@@ -31,9 +33,19 @@ export default function ReceiptCustomizationPage() {
         
         setActivePlanId(currentPlan);
 
-        if (currentPlan !== "enterprise") {
+        if (currentPlan !== "enterprise" && currentPlan !== "pro") {
           setHeaderText("Terima kasih telah mencuci di Spindo!");
           setFooterText("Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami. Cek riwayat laundry Anda melalui aplikasi Spindo.");
+        } else {
+          const savedSettings = localStorage.getItem(`receiptSettings_${parsed.tenantId}`);
+          if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            setHeaderText(settings.headerText || "Terima kasih telah mencuci di Spindo!");
+            setFooterText(settings.footerText || "Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami.");
+          } else {
+            setHeaderText("Terima kasih telah mencuci di Spindo!");
+            setFooterText("Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab kami.");
+          }
         }
         
         // Mock loading data
@@ -51,6 +63,16 @@ export default function ReceiptCustomizationPage() {
     e.preventDefault();
     setIsSaving(true);
     
+    // Simpan ke localStorage
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      localStorage.setItem(`receiptSettings_${parsed.tenantId}`, JSON.stringify({
+        headerText,
+        footerText
+      }));
+    }
+
     // Simulate API Call
     setTimeout(() => {
       setIsSaving(false);
@@ -59,6 +81,7 @@ export default function ReceiptCustomizationPage() {
   };
 
   const isEnterprise = activePlanId === "enterprise";
+  const canCustomizeText = activePlanId === "enterprise" || activePlanId === "pro";
 
   return (
     <>
@@ -93,12 +116,12 @@ export default function ReceiptCustomizationPage() {
               
               {/* Form Settings */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative">
-                {!isEnterprise && (
+                {!canCustomizeText && (
                   <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-100 flex gap-3">
                     <span className="text-xl">ℹ️</span>
                     <div>
                       <h4 className="text-sm font-bold text-blue-900">Template Struk Paten</h4>
-                      <p className="text-xs text-blue-700 mt-1">Anda sedang menggunakan paket {activePlanId.toUpperCase()}. Struk WhatsApp akan menggunakan template standar kami. Upgrade ke Enterprise untuk mengkustomisasi isi dan logo struk.</p>
+                      <p className="text-xs text-blue-700 mt-1">Anda sedang menggunakan paket {activePlanId.toUpperCase()}. Struk WhatsApp akan menggunakan template standar kami. Upgrade ke Pro atau Enterprise untuk mengkustomisasi teks struk.</p>
                     </div>
                   </div>
                 )}
@@ -124,9 +147,9 @@ export default function ReceiptCustomizationPage() {
                     <textarea 
                       value={headerText}
                       onChange={(e) => setHeaderText(e.target.value)}
-                      disabled={!isEnterprise}
+                      disabled={!canCustomizeText}
                       rows={3}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none transition-all ${!isEnterprise ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500'}`}
+                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none transition-all ${!canCustomizeText ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500'}`}
                       placeholder="Contoh: Halo Kak, terima kasih sudah laundry di tempat kami..."
                     />
                     <p className="text-[10px] text-slate-400">Pesan ini akan muncul di bagian atas nota WhatsApp.</p>
@@ -140,9 +163,9 @@ export default function ReceiptCustomizationPage() {
                     <textarea 
                       value={footerText}
                       onChange={(e) => setFooterText(e.target.value)}
-                      disabled={!isEnterprise}
+                      disabled={!canCustomizeText}
                       rows={3}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none transition-all ${!isEnterprise ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500'}`}
+                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none transition-all ${!canCustomizeText ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500'}`}
                       placeholder="Syarat & ketentuan, jam buka toko, dsb..."
                     />
                     <p className="text-[10px] text-slate-400">Pesan ini akan muncul di bagian paling bawah nota WhatsApp.</p>
@@ -193,8 +216,8 @@ export default function ReceiptCustomizationPage() {
                   <div className="pt-4 flex justify-end">
                     <button 
                       type="submit" 
-                      disabled={isSaving || !isEnterprise}
-                      className={`px-6 py-2.5 text-white text-sm font-bold rounded-xl transition shadow-md flex items-center gap-2 ${!isEnterprise ? 'bg-slate-300 cursor-not-allowed shadow-none' : 'bg-brand-600 hover:bg-brand-500 shadow-brand-600/20 disabled:opacity-50'}`}
+                      disabled={isSaving || !canCustomizeText}
+                      className={`px-6 py-2.5 text-white text-sm font-bold rounded-xl transition shadow-md flex items-center gap-2 ${!canCustomizeText ? 'bg-slate-300 cursor-not-allowed shadow-none' : 'bg-brand-600 hover:bg-brand-500 shadow-brand-600/20 disabled:opacity-50'}`}
                     >
                       {isSaving ? (
                         <>
@@ -202,7 +225,7 @@ export default function ReceiptCustomizationPage() {
                           Menyimpan...
                         </>
                       ) : (
-                        !isEnterprise ? "Terkunci" : "Simpan Pengaturan"
+                        !canCustomizeText ? "Terkunci" : "Simpan Pengaturan"
                       )}
                     </button>
                   </div>

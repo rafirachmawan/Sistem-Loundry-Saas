@@ -32,7 +32,6 @@ export default function KasirPOSPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [showRegForm, setShowRegForm] = useState(false);
   const [isManualReg, setIsManualReg] = useState(false);
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newCustomerPhone, setNewCustomerPhone] = useState("");
@@ -84,7 +83,44 @@ export default function KasirPOSPage() {
       paymentDetails = `%0A%0A*Pembayaran Tunai:*%0AUang Diterima: Rp ${cashAmount.toLocaleString("id-ID")}%0AKembalian: Rp ${(cashAmount - order.totalPrice).toLocaleString("id-ID")}`;
     }
 
-    const message = `Halo ${order.customer.name},%0ATransaksi Loundry Anda (Invoice: *${order.invoiceNumber}*) telah dicatat.%0A%0AStatus Pembayaran: ${statusText}%0ATotal Tagihan: *Rp ${order.totalPrice.toLocaleString("id-ID")}*${paymentDetails}${itemsText}%0A%0ATerima kasih telah mempercayakan pakaian Anda pada kami!`;
+    let headerText = `Halo ${order.customer.name},%0ATransaksi Loundry Anda (Invoice: *${order.invoiceNumber}*) telah dicatat.`;
+    let footerText = `Terima kasih telah mempercayakan pakaian Anda pada kami!`;
+
+    try {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        let canCustomizeText = false;
+        
+        if (parsed.tenantTier) {
+          const tier = parsed.tenantTier.toLowerCase();
+          if (tier === "enterprise" || tier === "pro") canCustomizeText = true;
+        }
+        
+        const savedSub = localStorage.getItem(`sub_${parsed.email}`);
+        if (savedSub) {
+          const sub = JSON.parse(savedSub);
+          if (sub.planId === "enterprise" || sub.planId === "pro") canCustomizeText = true;
+        }
+
+        if (canCustomizeText) {
+          const savedSettings = localStorage.getItem(`receiptSettings_${parsed.tenantId}`);
+          if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            if (settings.headerText) {
+              headerText = settings.headerText.replace(/\n/g, "%0A");
+            }
+            if (settings.footerText) {
+              footerText = settings.footerText.replace(/\n/g, "%0A");
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Gagal memuat pengaturan struk:", e);
+    }
+
+    const message = `${headerText}%0A%0AStatus Pembayaran: ${statusText}%0ATotal Tagihan: *Rp ${order.totalPrice.toLocaleString("id-ID")}*${paymentDetails}${itemsText}%0A%0A${footerText}`;
     
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
@@ -158,7 +194,6 @@ export default function KasirPOSPage() {
   useEffect(() => {
     if (searchQuery.trim().length === 0) {
       setSearchResults([]);
-      setShowRegForm(false);
       return;
     }
 
@@ -169,7 +204,6 @@ export default function KasirPOSPage() {
         const data = await res.json();
         if (res.ok && data.success) {
           setSearchResults(data.customers);
-          setShowRegForm(data.customers.length === 0);
         }
       } catch (err) {
         console.error(err);
@@ -200,7 +234,6 @@ export default function KasirPOSPage() {
         setNewCustomerName("");
         setNewCustomerPhone("");
         setNewCustomerAddress("");
-        setShowRegForm(false);
         setIsManualReg(false);
       } else {
         setErrorMsg(data.message || "Gagal mendaftarkan pelanggan");
@@ -436,7 +469,7 @@ export default function KasirPOSPage() {
                   )}
 
                   {/* Inline Form Registrasi Pelanggan Baru */}
-                  {(showRegForm || isManualReg) && !customerLoading && (
+                  {isManualReg && !customerLoading && (
                     <form
                       onSubmit={handleRegisterCustomer}
                       className="p-5 rounded-xl border border-slate-150 bg-slate-50/50 space-y-4 animate-fade-in-up"
@@ -645,7 +678,7 @@ export default function KasirPOSPage() {
                       Estimasi Selesai
                     </label>
                     <input
-                      type="datetime-local"
+                      type="date"
                       value={estimatedCompletionDate}
                       onChange={(e) => setEstimatedCompletionDate(e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 h-14 shadow-sm"
