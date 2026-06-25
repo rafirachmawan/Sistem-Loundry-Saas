@@ -280,42 +280,71 @@ export default function TransactionsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-wider ${
-                            order.status === "DONE" ? "bg-emerald-100 text-emerald-700" :
-                            order.status === "PROCESSING" ? "bg-blue-100 text-blue-700" :
+                            order.status === "COMPLETED" ? "bg-emerald-100 text-emerald-700" :
+                            order.status === "READY" ? "bg-blue-100 text-blue-700" :
+                            order.status === "IN_PROGRESS" ? "bg-purple-100 text-purple-700" :
                             "bg-amber-100 text-amber-700"
                           }`}>
-                            {order.status}
+                            {order.status === "QUEUED" ? "ANTREAN" : 
+                             order.status === "IN_PROGRESS" ? "DIPROSES" : 
+                             order.status === "READY" ? "SIAP AMBIL" : 
+                             order.status === "COMPLETED" ? "SELESAI" : 
+                             order.status}
                           </span>
                         </td>
                         <td className="px-6 py-4">
                           <div className="font-black font-mono text-slate-800 mb-1">
                             Rp {order.totalPrice.toLocaleString("id-ID")}
                           </div>
-                          <div className="flex gap-1.5">
-                            <span className={`inline-flex px-2 py-0.5 text-[9px] font-black rounded uppercase ${
-                              order.paymentStatus === "PAID" ? "bg-emerald-500 text-white" : "bg-rose-500 text-white"
-                            }`}>
-                              {order.paymentStatus}
-                            </span>
-                            <span className="inline-flex px-2 py-0.5 text-[9px] font-bold rounded uppercase bg-slate-100 text-slate-500">
-                              {order.paymentTerm}
-                            </span>
+                          <div className="flex flex-col gap-0.5 mt-1">
+                            {(() => {
+                              const totalPaid = order.payments && order.payments.length > 0 
+                                ? order.payments.reduce((sum: number, p: any) => sum + p.amount, 0) 
+                                : (order.paymentStatus === "PAID" ? order.totalPrice : 0);
+                              const remaining = Math.max(0, order.totalPrice - totalPaid);
+                              const change = Math.max(0, totalPaid - order.totalPrice);
+                              
+                              return (
+                                <>
+                                  <div className="text-[10px] text-slate-500 font-medium flex justify-between w-full max-w-[140px]">
+                                    <span>Dibayar:</span>
+                                    <span className="font-bold text-emerald-600">
+                                      Rp {totalPaid.toLocaleString("id-ID")}
+                                    </span>
+                                  </div>
+                                  <div className="text-[10px] text-slate-500 font-medium flex justify-between w-full max-w-[140px]">
+                                    <span>Kurang:</span>
+                                    <span className="font-bold text-red-500">
+                                      Rp {remaining.toLocaleString("id-ID")}
+                                    </span>
+                                  </div>
+                                  {change > 0 && (
+                                    <div className="text-[10px] text-slate-500 font-medium flex justify-between w-full max-w-[140px]">
+                                      <span>Kembalian:</span>
+                                      <span className="font-bold text-amber-500">
+                                        Rp {change.toLocaleString("id-ID")}
+                                      </span>
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
                           </div>
                         </td>
                         <td className="px-6 py-4 align-middle">
-                          {order.paymentStatus === "UNPAID" ? (
+                          {order.paymentStatus !== "PAID" ? (
                             <button
                               onClick={() => openPaymentModal(order)}
-                              className="px-3 py-1.5 bg-[#00A1A2] hover:bg-[#008f90] text-white text-[10px] font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors"
+                              className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg shadow-md transition-colors flex items-center justify-center min-w-[120px]"
                             >
-                              Lunasi Tagihan
+                              LUNASI TAGIHAN
                             </button>
                           ) : (
                             <button
                               onClick={() => sendWhatsAppReceipt(order, true)}
-                              className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1 w-max"
+                              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1 min-w-[120px]"
                             >
-                              Kirim Ulang WA
+                              KIRIM ULANG WA
                             </button>
                           )}
                         </td>
@@ -388,9 +417,12 @@ export default function TransactionsPage() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Uang Diterima (Rp)</label>
                   <input
-                    type="number"
-                    value={cashGiven}
-                    onChange={(e) => setCashGiven(e.target.value)}
+                    type="text"
+                    value={cashGiven ? `Rp ${parseInt(cashGiven, 10).toLocaleString("id-ID")}` : ""}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/\D/g, "");
+                      setCashGiven(rawValue);
+                    }}
                     placeholder="Masukkan nominal uang tunai..."
                     className="w-full p-3.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none font-mono font-bold text-slate-800 text-lg shadow-sm transition-all"
                   />

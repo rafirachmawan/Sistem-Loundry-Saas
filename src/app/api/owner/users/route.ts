@@ -6,7 +6,7 @@ import { logAudit } from "@/lib/audit";
 
 // Mapping limits for tiers
 const TIER_LIMITS: Record<string, number> = {
-  STARTER: 2,
+  STARTER: 1,
   PRO: 5,
   ENTERPRISE: -1,
 };

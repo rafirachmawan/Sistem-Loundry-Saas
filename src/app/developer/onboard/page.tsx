@@ -67,14 +67,14 @@ export default function DeveloperOnboardPage() {
         <header className="border-b border-slate-200/85 bg-white/70 backdrop-blur-md px-6 py-5 flex items-center justify-between sticky top-0 z-20">
           <div>
             <h1 className="text-xl font-display font-extrabold tracking-tight text-slate-800 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-purple-650"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
               Onboard Tenant
             </h1>
             <p className="text-xs text-slate-400 mt-0.5 font-medium">
               Daftarkan laundry baru dan owner-nya secara langsung ke dalam platform
             </p>
           </div>
-          <span className="text-xs py-1.5 px-3.5 rounded-full bg-purple-550/10 text-purple-650 border border-purple-500/20 font-bold shadow-sm">
+          <span className="text-xs py-1.5 px-3.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-bold shadow-sm">
             Quick Onboarding
           </span>
         </header>
@@ -83,12 +83,12 @@ export default function DeveloperOnboardPage() {
         <main className="flex-1 p-6 flex justify-center">
           <div className="w-full max-w-4xl space-y-6 animate-fade-in-up">
             
-            <div className="bg-purple-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden" style={{ backgroundColor: '#9333ea' }}>
+            <div className="bg-emerald-600 rounded-2xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden" style={{ backgroundColor: '#059669' }}>
               <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full filter blur-3xl -translate-y-1/2 translate-x-1/3"></div>
               <h3 className="text-xl font-display font-black tracking-tight mb-2 text-white">
                 ✨ Registrasi Tenant Baru
               </h3>
-              <p className="text-purple-100 text-sm max-w-xl">
+              <p className="text-emerald-100 text-sm max-w-xl">
                 Lengkapi formulir di bawah ini untuk mendaftarkan outlet laundry baru. Akun Owner dan 3 layanan master default akan dibuat secara otomatis.
               </p>
             </div>
@@ -131,7 +131,7 @@ export default function DeveloperOnboardPage() {
                       value={tenantName}
                       onChange={(e) => setTenantName(e.target.value)}
                       placeholder="Contoh: Clean & Fresh Laundry"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
                     />
                   </div>
 
@@ -143,7 +143,7 @@ export default function DeveloperOnboardPage() {
                     <select
                       value={tier}
                       onChange={(e) => setTier(e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl text-sm text-slate-800 focus:outline-none transition-all duration-200 font-semibold cursor-pointer"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl text-sm text-slate-800 focus:outline-none transition-all duration-200 font-semibold cursor-pointer"
                     >
                       <option value="STARTER">🌟 Starter (Trial 7 Hari)</option>
                       <option value="PRO">🚀 Pro (Standar)</option>
@@ -173,7 +173,7 @@ export default function DeveloperOnboardPage() {
                         value={ownerName}
                         onChange={(e) => setOwnerName(e.target.value)}
                         placeholder="Nama pemilik laundry"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
                       />
                     </div>
 
@@ -188,7 +188,7 @@ export default function DeveloperOnboardPage() {
                         value={ownerEmail}
                         onChange={(e) => setOwnerEmail(e.target.value)}
                         placeholder="owner@laundry.com"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
                       />
                     </div>
 
@@ -203,7 +203,7 @@ export default function DeveloperOnboardPage() {
                         value={ownerPhone}
                         onChange={(e) => setOwnerPhone(e.target.value)}
                         placeholder="0812..."
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
                       />
                     </div>
 
@@ -218,7 +218,7 @@ export default function DeveloperOnboardPage() {
                         value={ownerPassword}
                         onChange={(e) => setOwnerPassword(e.target.value)}
                         placeholder="Minimal 6 karakter"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all duration-200 font-semibold"
                       />
                     </div>
                   </div>
@@ -231,7 +231,7 @@ export default function DeveloperOnboardPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-8 py-3.5 bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-bold rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-lg shadow-purple-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[240px]"
+                  className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[240px]"
                 >
                   {submitting ? (
                     <>

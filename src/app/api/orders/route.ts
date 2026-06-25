@@ -74,7 +74,8 @@ export async function GET(request: Request) {
         customer: true,
         items: {
           include: { service: true }
-        }
+        },
+        payments: true
       },
       orderBy: { createdAt: "desc" },
     });
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { customerId, paymentTerm, items, notes, estimatedCompletionDate, paymentMethod } = body;
+    const { customerId, paymentTerm, items, notes, estimatedCompletionDate, paymentMethod, amountPaid } = body;
 
     // Validasi parameter wajib
     if (!customerId || !paymentTerm || !items || !Array.isArray(items) || items.length === 0) {
@@ -178,8 +179,8 @@ export async function POST(request: Request) {
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
     const invoiceNumber = `INV-${dateStr}-${randomSuffix}`;
 
-    // Tentukan paymentStatus. Jika CASH, langsung PAID.
-    const paymentStatus = paymentMethod === "CASH" ? "PAID" : "UNPAID";
+    // Tentukan paymentStatus. Jika CASH dan bayar penuh, langsung PAID.
+    const paymentStatus = (paymentMethod === "CASH" && amountPaid >= totalPrice) ? "PAID" : "UNPAID";
 
     // Simpan data order secara atomic dalam database
     const newOrder = await prisma.order.create({
@@ -198,10 +199,10 @@ export async function POST(request: Request) {
         items: {
           create: orderItemsToCreate,
         },
-        ...(paymentMethod === "CASH" ? {
+        ...(paymentMethod === "CASH" && amountPaid > 0 ? {
           payments: {
             create: [{
-              amount: totalPrice,
+              amount: amountPaid,
               paymentMethod: "CASH",
               userId: userId,
             }]

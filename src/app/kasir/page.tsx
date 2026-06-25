@@ -295,7 +295,6 @@ export default function KasirPOSPage() {
     setPaymentMethodTab("CASH");
   };
 
-  // Simpan Transaksi (POST Order)
   const handleSaveOrder = async (paymentMethodOverride?: "CASH" | "QRIS") => {
     if (!selectedCustomer || orderItems.length === 0) return;
     setSubmitting(true);
@@ -305,6 +304,7 @@ export default function KasirPOSPage() {
       customerId: selectedCustomer.id,
       paymentTerm,
       paymentMethod: paymentMethodOverride || null,
+      amountPaid: paymentMethodOverride === "CASH" ? parseFloat(cashGiven || "0") : 0,
       notes: orderNotes,
       estimatedCompletionDate: estimatedCompletionDate || null,
       items: orderItems.map((item) => ({
@@ -817,9 +817,12 @@ export default function KasirPOSPage() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Uang Diterima (Rp)</label>
                   <input
-                    type="number"
-                    value={cashGiven}
-                    onChange={(e) => setCashGiven(e.target.value)}
+                    type="text"
+                    value={cashGiven ? `Rp ${parseInt(cashGiven, 10).toLocaleString("id-ID")}` : ""}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/\D/g, "");
+                      setCashGiven(rawValue);
+                    }}
                     placeholder="Masukkan nominal uang tunai..."
                     className="w-full p-3.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none font-mono font-bold text-slate-800 text-lg shadow-sm transition-all"
                   />
@@ -835,12 +838,17 @@ export default function KasirPOSPage() {
                 )}
                 
                 {parseFloat(cashGiven || "0") > 0 && parseFloat(cashGiven || "0") < totalPrice && (
-                  <p className="text-xs text-red-500 font-bold italic text-center">Uang tidak cukup!</p>
+                  <div className="flex justify-between items-center p-4 bg-orange-50 rounded-xl border border-orange-100 shadow-sm">
+                    <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">Kurang (DP):</span>
+                    <span className="text-xl font-black font-mono text-orange-700">
+                      Rp {(totalPrice - parseFloat(cashGiven || "0")).toLocaleString("id-ID")}
+                    </span>
+                  </div>
                 )}
 
                 <button
                   onClick={() => handleSaveOrder("CASH")}
-                  disabled={submitting || parseFloat(cashGiven || "0") < totalPrice}
+                  disabled={submitting || parseFloat(cashGiven || "0") <= 0}
                   className="w-full py-4 mt-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-extrabold rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-600/20 flex justify-center items-center gap-2 transform active:scale-[0.98]"
                 >
                   {submitting ? (

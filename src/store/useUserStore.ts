@@ -36,7 +36,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   users: [],
   branches: [],
   tier: "STARTER",
-  maxUsers: 2,
+  maxUsers: 1,
   loading: true,
   errorMsg: "",
 
