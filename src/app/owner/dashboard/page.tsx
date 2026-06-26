@@ -32,6 +32,7 @@ interface LowStockAlert {
 
 interface AnalyticsData {
   omsetToday: number;
+  omsetTotal: number;
   piutangBerjalan: number;
   ordersTodayCount: number;
   unpaidAlerts: UnpaidAlert[];
@@ -173,7 +174,7 @@ export default function OwnerDashboardPage() {
           ) : (
             <>
               {/* 1. KEY FINANCIAL METRICS */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 
                 {/* Card Omset */}
                 <div className="glass-panel rounded-2xl p-6 relative overflow-hidden group hover:border-brand-500/20 transition-all duration-300 glow-emerald">
@@ -229,6 +230,25 @@ export default function OwnerDashboardPage() {
                   </span>
                   <p className="text-[10px] text-slate-400 mt-3 font-semibold leading-relaxed">
                     Jumlah total transaksi kasir yang berhasil diinput masuk hari ini.
+                  </p>
+                </div>
+
+                {/* Card Omset Total (Keseluruhan) */}
+                <div className="glass-panel rounded-2xl p-6 relative overflow-hidden group hover:border-emerald-500/20 transition-all duration-300 glow-emerald">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-400 rounded-full filter blur-3xl opacity-10 -mr-6 -mt-6"></div>
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="text-[10px] font-bold text-slate-450 uppercase tracking-widest block">
+                      Total Omset (Semua Waktu)
+                    </span>
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-sm shadow-sm font-bold">
+                      💎
+                    </div>
+                  </div>
+                  <span className="text-3xl font-display font-black text-emerald-600">
+                    {analytics.omsetTotal.toLocaleString("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })}
+                  </span>
+                  <p className="text-[10px] text-slate-400 mt-3 font-semibold leading-relaxed">
+                    Total akumulasi pendapatan uang kas sejak pertama aplikasi digunakan.
                   </p>
                 </div>
 

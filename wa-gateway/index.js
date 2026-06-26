@@ -1,11 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 const port = 3001;
 
@@ -58,7 +58,7 @@ client.initialize();
 // Endpoint untuk mengirim pesan
 app.post('/send', async (req, res) => {
     try {
-        const { target, message } = req.body;
+        const { target, message, media } = req.body;
 
         if (!target || !message) {
             return res.status(400).json({ success: false, message: 'Target (nomor WA) dan message wajib diisi.' });
@@ -72,9 +72,20 @@ app.post('/send', async (req, res) => {
         
         const chatId = formattedNumber + '@c.us';
 
-        // Kirim pesan
-        const response = await client.sendMessage(chatId, message);
-        console.log(`[INFO] Pesan terkirim ke ${target}`);
+        let response;
+        // Jika ada media, kirimkan file + caption
+        if (media && media.mimetype && media.data && media.filename) {
+            const mediaObject = new MessageMedia(media.mimetype, media.data, media.filename);
+            response = await client.sendMessage(chatId, mediaObject, { 
+                caption: message,
+                sendMediaAsDocument: true 
+            });
+            console.log(`[INFO] Dokumen terkirim ke ${target}`);
+        } else {
+            // Kirim pesan teks biasa
+            response = await client.sendMessage(chatId, message);
+            console.log(`[INFO] Pesan teks terkirim ke ${target}`);
+        }
 
         return res.status(200).json({
             success: true,

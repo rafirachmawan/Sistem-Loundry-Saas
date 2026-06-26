@@ -140,35 +140,59 @@ export default function ReceiptCustomizationPage() {
 
                 <form onSubmit={handleSave} className="space-y-6">
                   {/* Header Text */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-extrabold text-slate-600 uppercase tracking-wider">
-                      Pesan Pembuka (Header)
-                    </label>
+                  <div className={`p-4 rounded-xl border ${canCustomizeText ? (isEnterprise ? 'border-purple-200 bg-purple-50/50' : 'border-blue-200 bg-blue-50/50') : 'border-slate-200 bg-slate-50'} relative overflow-hidden`}>
+                    {!canCustomizeText && (
+                      <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-10">
+                        <div className="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 flex items-center gap-2">
+                          <svg className="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path></svg>
+                          <span className="text-xs font-bold text-slate-600">Khusus Paket Pro & Enterprise</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="mb-3">
+                      <h4 className={`text-sm font-bold ${canCustomizeText ? (isEnterprise ? 'text-purple-900' : 'text-blue-900') : 'text-slate-700'}`}>Pesan Pembuka (Header)</h4>
+                      <p className={`text-xs mt-0.5 ${canCustomizeText ? (isEnterprise ? 'text-purple-600' : 'text-blue-600') : 'text-slate-500'}`}>
+                        Pesan sapaan ini akan muncul di bagian paling atas nota WhatsApp.
+                      </p>
+                    </div>
+                    
                     <textarea 
                       value={headerText}
                       onChange={(e) => setHeaderText(e.target.value)}
                       disabled={!canCustomizeText}
-                      rows={3}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none transition-all ${!canCustomizeText ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500'}`}
+                      rows={2}
+                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none transition-all ${!canCustomizeText ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : `bg-white ${isEnterprise ? 'border-purple-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500' : 'border-blue-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'}`}`}
                       placeholder="Contoh: Halo Kak, terima kasih sudah laundry di tempat kami..."
                     />
-                    <p className="text-[10px] text-slate-400">Pesan ini akan muncul di bagian atas nota WhatsApp.</p>
                   </div>
 
                   {/* Footer Text */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-extrabold text-slate-600 uppercase tracking-wider">
-                      Pesan Penutup (Footer)
-                    </label>
+                  <div className={`p-4 rounded-xl border ${canCustomizeText ? (isEnterprise ? 'border-purple-200 bg-purple-50/50' : 'border-blue-200 bg-blue-50/50') : 'border-slate-200 bg-slate-50'} relative overflow-hidden`}>
+                    {!canCustomizeText && (
+                      <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-10">
+                        <div className="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 flex items-center gap-2">
+                          <svg className="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"></path></svg>
+                          <span className="text-xs font-bold text-slate-600">Khusus Paket Pro & Enterprise</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="mb-3">
+                      <h4 className={`text-sm font-bold ${canCustomizeText ? (isEnterprise ? 'text-purple-900' : 'text-blue-900') : 'text-slate-700'}`}>Pesan Penutup (Footer)</h4>
+                      <p className={`text-xs mt-0.5 ${canCustomizeText ? (isEnterprise ? 'text-purple-600' : 'text-blue-600') : 'text-slate-500'}`}>
+                        Pesan informasi, syarat/ketentuan, atau promo di bagian paling bawah.
+                      </p>
+                    </div>
+
                     <textarea 
                       value={footerText}
                       onChange={(e) => setFooterText(e.target.value)}
                       disabled={!canCustomizeText}
-                      rows={3}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none transition-all ${!canCustomizeText ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500'}`}
+                      rows={2}
+                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none resize-none transition-all ${!canCustomizeText ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : `bg-white ${isEnterprise ? 'border-purple-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500' : 'border-blue-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'}`}`}
                       placeholder="Syarat & ketentuan, jam buka toko, dsb..."
                     />
-                    <p className="text-[10px] text-slate-400">Pesan ini akan muncul di bagian paling bawah nota WhatsApp.</p>
                   </div>
 
                   {/* Custom Logo (Enterprise Only) */}

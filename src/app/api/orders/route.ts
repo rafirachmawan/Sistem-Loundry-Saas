@@ -1,51 +1,71 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
-// Simulasi WhatsApp Gateway Asynchronous (Mock Logger)
-function triggerWhatsAppNotification(order: any) {
-  // Dijalankan secara asynchronous (fire-and-forget)
-  Promise.resolve().then(() => {
+async function generatePdfBase64(order: any, customHeader?: string, customFooter?: string) {
+  try {
     const customerName = order.customer.name;
     const customerPhone = order.customer.phone;
     const invoiceNumber = order.invoiceNumber;
     const statusBayar = order.paymentStatus === "PAID" ? "LUNAS" : "BELUM LUNAS";
     const total = order.totalPrice.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
-
-    // Menyusun format nota digital spintax & unik (timestamp) untuk memitigasi pemblokiran nomor
     const timeString = new Date().toLocaleTimeString("id-ID");
-    const uniqueMsgId = Math.random().toString(36).substring(2, 7).toUpperCase();
 
-    let itemsText = "";
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([400, 600]);
+    const { width, height } = page.getSize();
+    
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+    // Header Custom atau Default
+    const headerTitle = customHeader ? customHeader.split('\n')[0].substring(0, 30) : "SPINDO LAUNDRY";
+    page.drawText(headerTitle, { x: 120, y: height - 50, size: 20, font: fontBold, color: rgb(0.04, 0.72, 0.51) });
+    page.drawText("NOTA TRANSAKSI", { x: 140, y: height - 70, size: 14, font: fontBold });
+
+    // Details
+    let yPos = height - 110;
+    page.drawText(`No. Invoice : ${invoiceNumber}`, { x: 30, y: yPos, size: 12, font }); yPos -= 20;
+    page.drawText(`Pelanggan   : ${customerName} (${customerPhone})`, { x: 30, y: yPos, size: 12, font }); yPos -= 20;
+    page.drawText(`Tanggal     : ${new Date().toLocaleDateString("id-ID")} ${timeString}`, { x: 30, y: yPos, size: 12, font }); yPos -= 20;
+    page.drawText(`Status Bayar: ${statusBayar}`, { x: 30, y: yPos, size: 12, font }); yPos -= 30;
+
+    // Line
+    page.drawLine({ start: { x: 30, y: yPos }, end: { x: width - 30, y: yPos }, thickness: 1, color: rgb(0.8, 0.8, 0.8) }); yPos -= 20;
+
+    // Items
+    page.drawText("Item / Layanan", { x: 30, y: yPos, size: 12, font: fontBold });
+    page.drawText("Subtotal", { x: width - 100, y: yPos, size: 12, font: fontBold });
+    yPos -= 20;
+
     order.items.forEach((item: any) => {
-      itemsText += `- ${item.service.name}: ${item.quantity} ${item.service.unit} @ ${item.priceSnap.toLocaleString("id-ID", { style: "currency", currency: "IDR" })}\n`;
+      const itemName = `${item.service.name} (${item.quantity} ${item.service.unit})`;
+      const itemPrice = (item.priceSnap * item.quantity).toLocaleString("id-ID");
+      page.drawText(itemName, { x: 30, y: yPos, size: 11, font });
+      page.drawText(`Rp ${itemPrice}`, { x: width - 100, y: yPos, size: 11, font });
+      yPos -= 20;
     });
 
-    const smsTemplate = `
-=========================================
-[WA GATEWAY MOCK] MESSAGE ID: ${uniqueMsgId}
-=========================================
-Kepada Yth. ${customerName} (${customerPhone}),
+    // Line
+    page.drawLine({ start: { x: 30, y: yPos }, end: { x: width - 30, y: yPos }, thickness: 1, color: rgb(0.8, 0.8, 0.8) }); yPos -= 20;
 
-Terima kasih telah menggunakan jasa kami.
-Berikut adalah detail nota cucian Anda:
+    // Total
+    page.drawText("TOTAL TAGIHAN:", { x: width - 190, y: yPos, size: 12, font: fontBold });
+    page.drawText(total, { x: width - 90, y: yPos, size: 14, font: fontBold, color: rgb(0.04, 0.72, 0.51) });
+    yPos -= 40;
 
-No. Invoice : ${invoiceNumber}
-Status Bayar: ${statusBayar}
-Waktu Transaksi: ${new Date().toLocaleDateString("id-ID")} ${timeString}
+    // Footer
+    const footerMsg = customFooter ? customFooter.split('\n')[0].substring(0, 50) : "Terima kasih telah menggunakan jasa kami.";
+    page.drawText(footerMsg, { x: 75, y: yPos, size: 12, font });
+    yPos -= 15;
+    page.drawText("Cucian Anda sedang kami proses (ANTREAN).", { x: 70, y: yPos, size: 10, font: font, color: rgb(0.4, 0.4, 0.4) });
 
-Detail Item:
-${itemsText}
------------------------------------------
-TOTAL AKHIR : ${total}
-
-Cucian Anda sedang kami proses dengan status: ANTREAN. Anda dapat memantau status cucian secara langsung.
-*Pesan ini dikirim otomatis oleh sistem laundry kami pada ${timeString}.*
-=========================================
-`;
-    console.log(smsTemplate);
-  }).catch((err) => {
-    console.error("Gagal mengirim notifikasi WhatsApp Mock:", err);
-  });
+    const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: false });
+    return pdfBytes;
+  } catch (err) {
+    console.error("[API] Gagal membuat PDF:", err);
+    return null;
+  }
 }
 
 // Handler GET untuk melihat daftar order (untuk Visual Tracker & Dashboard)
@@ -104,7 +124,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { customerId, paymentTerm, items, notes, estimatedCompletionDate, paymentMethod, amountPaid } = body;
+    const { customerId, paymentTerm, items, notes, estimatedCompletionDate, paymentMethod, amountPaid, headerText, footerText } = body;
 
     // Validasi parameter wajib
     if (!customerId || !paymentTerm || !items || !Array.isArray(items) || items.length === 0) {
@@ -217,13 +237,41 @@ export async function POST(request: Request) {
       },
     });
 
-    // Picu pengiriman notifikasi WhatsApp secara asynchronous (non-blocking)
-    triggerWhatsAppNotification(newOrder);
+    // Picu pembuatan PDF Nota secara synchronous
+    const pdfBase64 = await generatePdfBase64(newOrder, headerText, footerText);
+
+    // [NEW] Kirim PDF secara otomatis via WA Gateway (di-background agar tidak memblokir)
+    if (pdfBase64) {
+      Promise.resolve().then(async () => {
+        try {
+          const captionMsg = `${headerText ? headerText + '\n\n' : ''}Berikut kami lampirkan nota digital resmi untuk transaksi Anda (Invoice: *${newOrder.invoiceNumber}*).${footerText ? '\n\n' + footerText : ''}`;
+          
+          const response = await fetch("http://localhost:3001/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              target: newOrder.customer.phone,
+              message: captionMsg,
+              media: {
+                mimetype: "application/pdf",
+                data: pdfBase64,
+                filename: `${newOrder.invoiceNumber}.pdf`
+              }
+            })
+          });
+          const result = await response.json();
+          console.log("[API] Hasil Pengiriman WA Otomatis:", result);
+        } catch (e) {
+          console.error("[API] Gagal mengirim ke WA Gateway:", e);
+        }
+      });
+    }
 
     return NextResponse.json({
       success: true,
       message: "Order berhasil disimpan",
       order: newOrder,
+      pdfBase64,
     });
   } catch (error: any) {
     console.error("Kesalahan API POST Orders:", error);

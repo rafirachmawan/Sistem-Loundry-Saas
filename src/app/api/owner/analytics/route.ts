@@ -24,6 +24,12 @@ export async function GET(request: Request) {
     });
     const omsetToday = paymentsToday.reduce((sum, p) => sum + p.amount, 0);
 
+    // 1.b Omset Total Keseluruhan: Sum semua payment
+    const allPayments = await prisma.payment.findMany({
+      where: { order: { tenantId } },
+    });
+    const omsetTotal = allPayments.reduce((sum, p) => sum + p.amount, 0);
+
     // 2. Piutang Berjalan: Sum total order UNPAID (semua waktu)
     const unpaidOrders = await prisma.order.findMany({
       where: {
@@ -122,6 +128,7 @@ export async function GET(request: Request) {
       success: true,
       data: {
         omsetToday,
+        omsetTotal,
         piutangBerjalan,
         ordersTodayCount,
         unpaidAlerts,

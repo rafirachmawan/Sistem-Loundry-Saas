@@ -120,9 +120,10 @@ export default function KasirPOSPage() {
       console.error("Gagal memuat pengaturan struk:", e);
     }
 
-    const message = `${headerText}%0A%0AStatus Pembayaran: ${statusText}%0ATotal Tagihan: *Rp ${order.totalPrice.toLocaleString("id-ID")}*${paymentDetails}${itemsText}%0A%0A${footerText}`;
+    const message = `${headerText}%0A%0ABerikut kami lampirkan nota digital resmi untuk transaksi Anda.%0A%0A${footerText}`;
     
-    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+    // Redirect ke WhatsApp Web dinonaktifkan karena WA Gateway otomatis sudah diaktifkan di backend
+    console.log(`[Frontend] Pesanan tersimpan, PDF otomatis didownload dan dikirim via WA Gateway ke ${phone}`);
   };
 
   // Trigger Pembayaran Midtrans Snap
@@ -300,6 +301,23 @@ export default function KasirPOSPage() {
     setSubmitting(true);
     setErrorMsg("");
 
+    let customHeader = "";
+    let customFooter = "";
+    try {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        const savedSettings = localStorage.getItem(`receiptSettings_${parsed.tenantId}`);
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          if (settings.headerText) customHeader = settings.headerText;
+          if (settings.footerText) customFooter = settings.footerText;
+        }
+      }
+    } catch (e) {
+      console.error("Gagal membaca pengaturan nota:", e);
+    }
+
     const payload = {
       customerId: selectedCustomer.id,
       paymentTerm,
@@ -307,6 +325,8 @@ export default function KasirPOSPage() {
       amountPaid: paymentMethodOverride === "CASH" ? parseFloat(cashGiven || "0") : 0,
       notes: orderNotes,
       estimatedCompletionDate: estimatedCompletionDate || null,
+      headerText: customHeader,
+      footerText: customFooter,
       items: orderItems.map((item) => ({
         serviceId: item.serviceId,
         quantity: item.quantity,
@@ -326,6 +346,33 @@ export default function KasirPOSPage() {
 
         // Tutup modal pembayaran jika terbuka
         setShowPaymentModal(false);
+
+        // Download PDF otomatis jika tersedia
+        if (data.pdfBase64) {
+          try {
+            // Konversi base64 ke Blob untuk mencegah Network Error di Chrome
+            const byteCharacters = atob(data.pdfBase64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: "application/pdf" });
+            const blobUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.createElement("a");
+            downloadLink.href = blobUrl;
+            downloadLink.download = `${data.order.invoiceNumber}.pdf`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // Bersihkan memori
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+          } catch (err) {
+            console.error("Gagal download PDF:", err);
+          }
+        }
 
         if (paymentTerm === "PREPAID") {
           if (paymentMethodOverride === "QRIS") {
