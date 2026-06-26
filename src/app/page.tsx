@@ -5,6 +5,7 @@ import Comparison from "./components/landing/Comparison";
 import Pricing from "./components/landing/Pricing";
 import Faq from "./components/landing/Faq";
 import Footer from "./components/landing/Footer";
+import TrackerSection from "./components/landing/TrackerSection";
 
 export default function Home() {
   return (
@@ -20,6 +21,9 @@ export default function Home() {
 
       {/* Hero Section */}
       <Hero />
+
+      {/* Public Tracker Section */}
+      <TrackerSection />
 
       {/* Features Section */}
       <Features />

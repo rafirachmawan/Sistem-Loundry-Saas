@@ -17,6 +17,7 @@ export default function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8 font-medium text-slate-600 text-sm">
           <a href="#fitur" className="hover:text-brand-600 transition-colors">Fitur Utama</a>
+          <a href="#cek-status" className="hover:text-brand-600 transition-colors">Cek Status</a>
           <a href="#kelebihan" className="hover:text-brand-600 transition-colors">Kelebihan & Kekurangan</a>
           <a href="#harga" className="hover:text-brand-600 transition-colors">Paket Harga</a>
           <a href="#faq" className="hover:text-brand-600 transition-colors">FAQ</a>
@@ -63,6 +64,13 @@ export default function Navbar() {
             className="block font-medium text-slate-700 hover:text-brand-600"
           >
             Fitur Utama
+          </a>
+          <a 
+            href="#cek-status" 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block font-medium text-slate-700 hover:text-brand-600"
+          >
+            Cek Status
           </a>
           <a 
             href="#kelebihan" 

@@ -5,11 +5,12 @@ import { verifyJWT } from "@/lib/jwt";
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Lewati static files, favicon, API auth, dan halaman register
+  // Lewati static files, favicon, API auth, API track, dan halaman register
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/track") ||
     pathname === "/register"
   ) {
     return NextResponse.next();
