@@ -5,7 +5,15 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import KasirScreen from '../screens/KasirScreen';
+import CustomersScreen from '../screens/CustomersScreen';
+import TrackerScreen from '../screens/TrackerScreen';
+import InventoryScreen from '../screens/InventoryScreen';
 import DashboardOwnerScreen from '../screens/DashboardOwnerScreen';
+import ServicesScreen from '../screens/ServicesScreen';
+import BranchesScreen from '../screens/BranchesScreen';
+import UsersScreen from '../screens/UsersScreen';
+import ReceiptScreen from '../screens/ReceiptScreen';
+import BillingScreen from '../screens/BillingScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -173,28 +181,27 @@ export default function DrawerNavigator() {
       {isOwner && (
         <>
           <Drawer.Screen name="Dashboard Owner" component={DashboardOwnerScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="home" size={size} color={color}/> }} />
-          <Drawer.Screen name="Kelola Layanan" component={DummyScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="list" size={size} color={color}/> }} />
+          <Drawer.Screen name="Kelola Layanan" component={ServicesScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="list" size={size} color={color}/> }} />
           <Drawer.Screen 
             name="Kelola Cabang" 
-            component={isEnterprise ? DummyScreen : LockedScreen} 
+            component={isEnterprise ? BranchesScreen : LockedScreen} 
             options={{ drawerIcon: ({color, size}) => <Ionicons name={isEnterprise ? "git-network" : "lock-closed"} size={size} color={color}/> }} 
           />
-          <Drawer.Screen name="Kelola Pengguna" component={DummyScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="person-add" size={size} color={color}/> }} />
-          <Drawer.Screen name="Customasi Struk" component={DummyScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="document-text" size={size} color={color}/> }} />
-          <Drawer.Screen name="Billing & Langganan" component={DummyScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="card" size={size} color={color}/> }} />
+          <Drawer.Screen name="Kelola Pengguna" component={UsersScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="person-add" size={size} color={color}/> }} />
+          <Drawer.Screen name="Customasi Struk" component={ReceiptScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="document-text" size={size} color={color}/> }} />
+          <Drawer.Screen name="Billing & Langganan" component={BillingScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="card" size={size} color={color}/> }} />
         </>
       )}
 
       {/* 🔵 MENU KASIR / UMUM (Ditampilkan untuk Owner dan Kasir) */}
       {!isDeveloper && (
         <>
-          <Drawer.Screen name="Kasir (POS)" component={KasirScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="cart" size={size} color={color}/> }} />
-          <Drawer.Screen name="Pelanggan" component={DummyScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="happy" size={size} color={color}/> }} />
-          <Drawer.Screen name="Riwayat Transaksi" component={DummyScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="receipt" size={size} color={color}/> }} />
-          <Drawer.Screen name="Visual Tracker" component={DummyScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="analytics" size={size} color={color}/> }} />
+          <Drawer.Screen name="Kasir (POS)" component={KasirScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="basket" size={size} color={color}/> }} />
+          <Drawer.Screen name="Data Pelanggan" component={CustomersScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="people" size={size} color={color}/> }} />
+          <Drawer.Screen name="Visual Tracker" component={TrackerScreen} options={{ drawerIcon: ({color, size}) => <Ionicons name="analytics" size={size} color={color}/> }} />
           <Drawer.Screen 
             name="Stok Gudang" 
-            component={isEnterprise ? DummyScreen : LockedScreen} 
+            component={isEnterprise ? InventoryScreen : LockedScreen} 
             options={{ drawerIcon: ({color, size}) => <Ionicons name={isEnterprise ? "cube" : "lock-closed"} size={size} color={color}/> }} 
           />
         </>
