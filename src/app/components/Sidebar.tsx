@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -16,6 +17,7 @@ export default function Sidebar() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [activePlanId, setActivePlanId] = useState<string>("trial");
+  const [notification, setNotification] = useState<{show: boolean, message: string}>({show: false, message: ""});
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -234,11 +236,12 @@ export default function Sidebar() {
                 return (
                   <button
                     key={item.name}
-                    onClick={() => alert(
-                      (item.name === "Kelola Cabang" || item.name === "Stok Gudang")
-                      ? `Fitur ${item.name} hanya tersedia untuk Paket Enterprise. Silakan upgrade paket Anda di menu Billing & Langganan.`
-                      : `Fitur ${item.name} tidak tersedia di paket Anda. Silakan upgrade paket Anda di menu Billing & Langganan.`
-                    )}
+                    onClick={() => setNotification({
+                      show: true,
+                      message: (item.name === "Kelola Cabang" || item.name === "Stok Gudang")
+                        ? `Fitur ${item.name} hanya tersedia untuk Paket Enterprise. Silakan upgrade paket Anda di menu Billing & Langganan.`
+                        : `Fitur ${item.name} tidak tersedia di paket Anda. Silakan upgrade paket Anda di menu Billing & Langganan.`
+                    })}
                     className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-slate-400 cursor-not-allowed bg-slate-50/50 hover:bg-slate-100/50 border border-transparent transition-all"
                   >
                     <span className="text-slate-400">
@@ -304,11 +307,12 @@ export default function Sidebar() {
                 return (
                   <button
                     key={item.name}
-                    onClick={() => alert(
-                      (item.name === "Kelola Cabang" || item.name === "Stok Gudang")
-                      ? `Fitur ${item.name} hanya tersedia untuk Paket Enterprise. Silakan upgrade paket Anda di menu Billing & Langganan.`
-                      : `Fitur ${item.name} tidak tersedia di paket Anda. Silakan upgrade paket Anda di menu Billing & Langganan.`
-                    )}
+                    onClick={() => setNotification({
+                      show: true,
+                      message: (item.name === "Kelola Cabang" || item.name === "Stok Gudang")
+                        ? `Fitur ${item.name} hanya tersedia untuk Paket Enterprise. Silakan upgrade paket Anda di menu Billing & Langganan.`
+                        : `Fitur ${item.name} tidak tersedia di paket Anda. Silakan upgrade paket Anda di menu Billing & Langganan.`
+                    })}
                     className="flex flex-col items-center justify-center w-12 h-12 rounded-xl text-slate-400 opacity-80 cursor-not-allowed relative"
                   >
                     {item.icon}
@@ -343,6 +347,38 @@ export default function Sidebar() {
           <span className="text-[8px] mt-0.5 font-bold">Keluar</span>
         </button>
       </nav>
+      {/* 🚀 CUSTOM MODAL NOTIFICATION */}
+      {notification.show && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 mb-2">Akses Terkunci</h3>
+              <p className="text-sm text-slate-500 font-medium relative z-10">
+                {notification.message}
+              </p>
+            </div>
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-3 relative z-10">
+              <button 
+                onClick={() => setNotification({show: false, message: ""})}
+                className="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors"
+              >
+                Tutup
+              </button>
+              <Link 
+                href="/owner/billing"
+                onClick={() => setNotification({show: false, message: ""})}
+                className="flex-1 px-4 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-colors text-center"
+              >
+                Upgrade
+              </Link>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
